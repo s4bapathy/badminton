@@ -3,367 +3,112 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Badminton Tournament Scorer</title>
+<title>🏸 Badminton Tournament</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0e1a;
-    --surface: #111827;
-    --surface2: #1a2235;
-    --accent: #f59e0b;
-    --accent2: #10b981;
-    --red: #ef4444;
-    --text: #f1f5f9;
-    --muted: #64748b;
-    --border: #1e293b;
+    --bg:#0a0e1a; --surface:#111827; --surface2:#1a2235;
+    --accent:#f59e0b; --accent2:#10b981; --red:#ef4444;
+    --text:#f1f5f9; --muted:#64748b; --border:#1e293b;
   }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* HEADER */
+  header{background:linear-gradient(135deg,#0a0e1a,#1a1025);border-bottom:2px solid var(--accent);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  header h1{font-family:'Bebas Neue';font-size:1.9rem;letter-spacing:3px;color:var(--accent);text-shadow:0 0 20px rgba(245,158,11,.4);}
+  .hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+  #header-info{font-size:.78rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+  .sync-row{display:flex;align-items:center;gap:6px;font-size:.74rem;color:var(--muted);}
+  #sync-dot{width:9px;height:9px;border-radius:50%;background:var(--muted);transition:background .4s;flex-shrink:0;}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-  }
+  /* NAV */
+  nav{display:flex;gap:8px;padding:10px 28px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;}
+  nav button{padding:7px 18px;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:6px;cursor:pointer;font-family:'DM Sans';font-size:.88rem;transition:all .2s;white-space:nowrap;}
+  nav button.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;}
+  nav button:hover:not(.active){border-color:var(--accent);color:var(--accent);}
 
-  header {
-    background: linear-gradient(135deg, #0a0e1a 0%, #1a1025 100%);
-    border-bottom: 2px solid var(--accent);
-    padding: 18px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
+  main{max-width:1200px;margin:0 auto;padding:22px 28px;}
+  .page{display:none;} .page.active{display:block;}
 
-  header h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2rem;
-    letter-spacing: 3px;
-    color: var(--accent);
-    text-shadow: 0 0 20px rgba(245,158,11,0.4);
-  }
+  /* CONFIG PANEL */
+  .config-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:22px;}
+  .config-panel h2{font-family:'Bebas Neue';font-size:1.2rem;letter-spacing:2px;color:var(--accent);margin-bottom:16px;}
+  .config-row{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px;}
+  .config-field{display:flex;flex-direction:column;gap:5px;}
+  .config-field label{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;}
+  .config-field input[type=number]{width:100px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-family:'DM Sans';font-size:1rem;font-weight:700;outline:none;transition:border-color .2s;}
+  .config-field input[type=number]:focus{border-color:var(--accent);}
+  .config-hint{background:var(--surface2);border-left:3px solid var(--accent);padding:9px 14px;border-radius:0 8px 8px 0;font-size:.83rem;color:var(--muted);line-height:1.6;}
+  .config-hint strong{color:var(--text);}
 
-  header span {
-    font-size: 0.82rem;
-    color: var(--muted);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
+  /* GROUPS GRID */
+  .groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-bottom:18px;}
+  .group-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;}
+  .group-card h3{font-family:'Bebas Neue';font-size:1rem;letter-spacing:2px;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
+  .grp-badge{padding:2px 9px;border-radius:4px;font-size:.78rem;font-weight:700;color:#000;}
+  .team-list{display:flex;flex-direction:column;gap:5px;}
+  .team-item{display:flex;align-items:center;gap:7px;background:var(--surface2);border-radius:7px;padding:6px 9px;}
+  .team-num{background:var(--border);color:var(--muted);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;}
+  .team-item input{flex:1;background:transparent;border:none;color:var(--text);font-family:'DM Sans';font-size:.88rem;outline:none;}
 
-  nav {
-    display: flex;
-    gap: 8px;
-    padding: 12px 32px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-  }
+  /* BUTTONS */
+  .btn{padding:10px 22px;border:none;border-radius:8px;cursor:pointer;font-family:'DM Sans';font-weight:700;font-size:.92rem;transition:all .2s;}
+  .btn-primary{background:var(--accent);color:#000;}
+  .btn-primary:hover{background:#d97706;transform:translateY(-1px);}
+  .btn-danger{background:#1f2937;color:var(--red);border:1px solid var(--red);}
+  .btn-sm{padding:6px 13px;font-size:.8rem;border-radius:6px;}
+  .flex{display:flex;align-items:center;} .gap{gap:10px;} .mt{margin-top:14px;} .mb{margin-bottom:14px;}
 
-  nav button {
-    padding: 8px 20px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    transition: all 0.2s;
-  }
+  /* MATCHES */
+  .match-controls{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .match-controls select{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;font-family:'DM Sans';font-size:.85rem;}
+  .matches-list{display:flex;flex-direction:column;gap:7px;}
+  .match-row{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .match-row.played{border-left:3px solid var(--accent2);}
+  .match-row.pending{border-left:3px solid var(--border);}
+  .match-num{font-size:.7rem;color:var(--muted);width:30px;flex-shrink:0;font-weight:700;}
+  .match-teams{flex:1;display:flex;align-items:center;gap:9px;min-width:180px;}
+  .team-name{flex:1;font-weight:500;font-size:.88rem;}
+  .team-name.right{text-align:right;}
+  .grp-tag{font-size:.62rem;font-weight:700;padding:1px 4px;border-radius:3px;color:#000;margin-right:3px;}
+  .vs{color:var(--muted);font-size:.8rem;font-weight:700;flex-shrink:0;}
+  .score-inputs{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+  .score-inputs input{width:48px;background:var(--surface2);border:1px solid var(--border);color:var(--text);text-align:center;padding:5px 3px;border-radius:6px;font-family:'DM Sans';font-size:.92rem;font-weight:700;}
+  .score-inputs input:focus{outline:none;border-color:var(--accent);}
+  .score-sep{color:var(--muted);}
+  .save-btn{background:var(--accent2);color:#000;border:none;padding:6px 13px;border-radius:6px;cursor:pointer;font-family:'DM Sans';font-weight:700;font-size:.8rem;flex-shrink:0;}
+  .save-btn:hover{background:#059669;}
+  .edit-btn{background:transparent;color:var(--muted);border:1px solid var(--border);padding:6px 11px;border-radius:6px;cursor:pointer;font-family:'DM Sans';font-size:.76rem;flex-shrink:0;}
+  .edit-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .dot-done{background:var(--accent2);} .dot-pending{background:var(--border);}
 
-  nav button.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
-  nav button:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+  /* STANDINGS */
+  .standings-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:10px;flex-wrap:wrap;}
+  .standings-title{font-family:'Bebas Neue';font-size:1.4rem;letter-spacing:2px;color:var(--accent);}
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin-bottom:18px;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px;text-align:center;}
+  .stat-card .val{font-family:'Bebas Neue';font-size:1.7rem;color:var(--accent);}
+  .stat-card .lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+  .standings-table{width:100%;border-collapse:collapse;background:var(--surface);border-radius:12px;overflow:hidden;margin-bottom:20px;}
+  .standings-table th{background:var(--surface2);padding:10px 13px;text-align:left;font-size:.73rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;}
+  .standings-table td{padding:10px 13px;border-top:1px solid var(--border);font-size:.86rem;}
+  .standings-table tr:hover td{background:var(--surface2);}
+  .rank-badge{display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;border-radius:50%;font-weight:700;font-size:.8rem;}
+  .rank-1{background:#ffd700;color:#000;} .rank-2{background:#c0c0c0;color:#000;}
+  .rank-3{background:#cd7f32;color:#000;} .rank-other{background:var(--border);color:var(--muted);}
+  .pts{font-weight:700;font-size:.92rem;color:var(--accent);}
+  .diff-pos{color:var(--accent2);font-weight:600;} .diff-neg{color:var(--red);font-weight:600;}
+  .progress-bar{height:3px;background:var(--border);border-radius:2px;margin-top:3px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);border-radius:2px;}
+  .info-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 16px;margin-bottom:16px;font-size:.86rem;color:var(--muted);line-height:1.6;}
+  .info-box strong{color:var(--text);}
+  .section-label{font-family:'Bebas Neue';font-size:.95rem;letter-spacing:2px;color:var(--muted);margin-bottom:9px;}
 
-  main { max-width: 1200px; margin: 0 auto; padding: 24px 32px; }
-  .page { display: none; }
-  .page.active { display: block; }
-
-  .config-panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 28px;
-    margin-bottom: 24px;
-  }
-
-  .config-panel h2 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.3rem;
-    letter-spacing: 2px;
-    color: var(--accent);
-    margin-bottom: 20px;
-  }
-
-  .config-row {
-    display: flex;
-    align-items: flex-end;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-  }
-
-  .config-field { display: flex; flex-direction: column; gap: 6px; }
-  .config-field label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 600; }
-
-  .config-field input[type=number] {
-    width: 110px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .config-field input[type=number]:focus { border-color: var(--accent); }
-
-  .config-hint {
-    background: var(--surface2);
-    border-left: 3px solid var(--accent);
-    padding: 10px 16px;
-    border-radius: 0 8px 8px 0;
-    font-size: 0.85rem;
-    color: var(--muted);
-    line-height: 1.6;
-  }
-
-  .config-hint strong { color: var(--text); }
-
-  .groups-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 16px;
-    margin-bottom: 20px;
-  }
-
-  .group-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-  }
-
-  .group-card h3 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem;
-    letter-spacing: 2px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .grp-badge {
-    padding: 2px 10px;
-    border-radius: 4px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: #000;
-  }
-
-  .team-list { display: flex; flex-direction: column; gap: 6px; }
-
-  .team-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--surface2);
-    border-radius: 7px;
-    padding: 7px 10px;
-  }
-
-  .team-num {
-    background: var(--border);
-    color: var(--muted);
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  .team-item input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    outline: none;
-  }
-
-  .btn {
-    padding: 11px 24px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 700;
-    font-size: 0.95rem;
-    transition: all 0.2s;
-  }
-
-  .btn-primary { background: var(--accent); color: #000; }
-  .btn-primary:hover { background: #d97706; transform: translateY(-1px); }
-  .btn-danger { background: #1f2937; color: var(--red); border: 1px solid var(--red); }
-  .btn-sm { padding: 6px 14px; font-size: 0.82rem; border-radius: 6px; }
-
-  .flex { display: flex; align-items: center; }
-  .gap { gap: 12px; }
-  .mt { margin-top: 16px; }
-  .mb { margin-bottom: 16px; }
-
-  .match-controls {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-
-  .match-controls select {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
-  }
-
-  .matches-list { display: flex; flex-direction: column; gap: 8px; }
-
-  .match-row {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .match-row.played { border-left: 3px solid var(--accent2); }
-  .match-row.pending { border-left: 3px solid var(--border); }
-
-  .match-num { font-size: 0.72rem; color: var(--muted); width: 32px; flex-shrink: 0; font-weight: 700; }
-
-  .match-teams { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 200px; }
-
-  .team-name { flex: 1; font-weight: 500; font-size: 0.9rem; }
-  .team-name.right { text-align: right; }
-
-  .grp-tag {
-    font-size: 0.65rem;
-    font-weight: 700;
-    padding: 1px 5px;
-    border-radius: 3px;
-    color: #000;
-    margin-right: 4px;
-  }
-
-  .vs { color: var(--muted); font-size: 0.82rem; font-weight: 700; flex-shrink: 0; }
-
-  .score-inputs { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-
-  .score-inputs input {
-    width: 48px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    text-align: center;
-    padding: 6px 4px;
-    border-radius: 6px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.95rem;
-    font-weight: 700;
-  }
-
-  .score-inputs input:focus { outline: none; border-color: var(--accent); }
-  .score-sep { color: var(--muted); }
-
-  .save-btn {
-    background: var(--accent2);
-    color: #000;
-    border: none;
-    padding: 7px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 700;
-    font-size: 0.82rem;
-    flex-shrink: 0;
-  }
-
-  .save-btn:hover { background: #059669; }
-
-  .edit-btn {
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--border);
-    padding: 7px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.78rem;
-    flex-shrink: 0;
-  }
-
-  .edit-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .dot-done { background: var(--accent2); }
-  .dot-pending { background: var(--border); }
-
-  .standings-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 2px; color: var(--accent); }
-  .standings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
-
-  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 20px; }
-
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; }
-  .stat-card .val { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--accent); }
-  .stat-card .lbl { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
-
-  .standings-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
-  .standings-table th { background: var(--surface2); padding: 11px 14px; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 600; }
-  .standings-table td { padding: 11px 14px; border-top: 1px solid var(--border); font-size: 0.88rem; }
-  .standings-table tr:hover td { background: var(--surface2); }
-
-  .rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; font-weight: 700; font-size: 0.82rem; }
-  .rank-1 { background: #ffd700; color: #000; }
-  .rank-2 { background: #c0c0c0; color: #000; }
-  .rank-3 { background: #cd7f32; color: #000; }
-  .rank-other { background: var(--border); color: var(--muted); }
-
-  .pts { font-weight: 700; font-size: 0.95rem; color: var(--accent); }
-  .diff-pos { color: var(--accent2); font-weight: 600; }
-  .diff-neg { color: var(--red); font-weight: 600; }
-
-  .progress-bar { height: 3px; background: var(--border); border-radius: 2px; margin-top: 4px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; }
-
-  .info-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 18px; font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
-  .info-box strong { color: var(--text); }
-
-  .section-label { font-family: 'Bebas Neue'; font-size: 1rem; letter-spacing: 2px; color: var(--muted); margin-bottom: 10px; }
-
-  @media (max-width: 700px) {
-    main { padding: 14px; }
-    header { padding: 12px 16px; }
-    nav { padding: 10px 14px; overflow-x: auto; }
-    .standings-table th, .standings-table td { padding: 8px 8px; font-size: 0.78rem; }
+  @media(max-width:700px){
+    main{padding:12px;} header{padding:12px 14px;} nav{padding:8px 12px;}
+    .standings-table th,.standings-table td{padding:7px 7px;font-size:.76rem;}
   }
 </style>
 </head>
@@ -371,12 +116,12 @@
 
 <header>
   <h1>🏸 Shuttle Score</h1>
-  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+  <div class="hdr-right">
     <span id="header-info">Badminton Tournament</span>
-    <span style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--muted)">
-      <span id="sync-dot" style="width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block;transition:background 0.3s"></span>
-      <span id="sync-text">Not connected</span>
-    </span>
+    <div class="sync-row">
+      <span id="sync-dot"></span>
+      <span id="sync-text">Connecting…</span>
+    </div>
   </div>
 </header>
 
@@ -388,25 +133,23 @@
 
 <main>
 
-  <!-- SETUP PAGE -->
+  <!-- SETUP -->
   <div id="page-setup" class="page active">
-
     <div class="config-panel">
       <h2>⚙️ Step 1 — Tournament Configuration</h2>
       <div class="config-row">
         <div class="config-field">
           <label>Number of Teams</label>
-          <input type="number" id="cfg-teams" min="2" max="64" value="16" oninput="updateConfigHint()" />
+          <input type="number" id="cfg-teams" min="2" max="64" value="16" oninput="updateConfigHint()"/>
         </div>
         <div class="config-field">
           <label>Number of Groups</label>
-          <input type="number" id="cfg-groups" min="2" max="16" value="2" oninput="updateConfigHint()" />
+          <input type="number" id="cfg-groups" min="2" max="16" value="2" oninput="updateConfigHint()"/>
         </div>
         <button class="btn btn-primary" onclick="applyConfig()">→ Set Up Teams</button>
       </div>
-      <div class="config-hint" id="cfg-hint">Loading...</div>
+      <div class="config-hint" id="cfg-hint">16 teams ÷ 2 groups = <strong>8 teams per group</strong>.</div>
     </div>
-
     <div id="setup-teams-section" style="display:none">
       <div class="section-label mb">Step 2 — Name Your Teams</div>
       <div class="groups-grid" id="groups-grid"></div>
@@ -415,28 +158,25 @@
         <button class="btn btn-danger btn-sm" onclick="resetAll()">🔄 Reset All</button>
       </div>
     </div>
-
   </div>
 
-  <!-- MATCHES PAGE -->
+  <!-- MATCHES -->
   <div id="page-matches" class="page">
     <div class="match-controls">
-      <span style="font-weight:700;font-size:0.95rem">Filter:</span>
-      <select id="group-filter" onchange="renderMatches()">
-        <option value="all">All Matchups</option>
-      </select>
+      <span style="font-weight:700;font-size:.92rem">Filter:</span>
+      <select id="group-filter" onchange="renderMatches()"><option value="all">All Matchups</option></select>
       <select id="status-filter" onchange="renderMatches()">
         <option value="all">All Matches</option>
         <option value="pending">Pending</option>
         <option value="played">Played</option>
       </select>
-      <span id="match-progress" style="margin-left:auto;color:var(--muted);font-size:0.82rem;"></span>
-      <button class="btn btn-sm" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border)" onclick="pullFromSheet()">☁️ Sync</button>
+      <span id="match-progress" style="margin-left:auto;color:var(--muted);font-size:.8rem;"></span>
+      <button class="btn btn-sm" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border)" onclick="forceSyncFromFirebase()">☁️ Sync</button>
     </div>
     <div class="matches-list" id="matches-list"></div>
   </div>
 
-  <!-- STANDINGS PAGE -->
+  <!-- STANDINGS -->
   <div id="page-standings" class="page">
     <div class="standings-header">
       <div class="standings-title">🏆 Overall Standings</div>
@@ -446,11 +186,7 @@
     <div class="section-label mb" id="standings-label">ALL TEAMS</div>
     <table class="standings-table">
       <thead>
-        <tr>
-          <th>#</th><th>Team</th><th>Grp</th>
-          <th>P</th><th>W</th><th>L</th>
-          <th>PF</th><th>PA</th><th>Diff</th><th>Pts</th>
-        </tr>
+        <tr><th>#</th><th>Team</th><th>Grp</th><th>P</th><th>W</th><th>L</th><th>PF</th><th>PA</th><th>Diff</th><th>Pts</th></tr>
       </thead>
       <tbody id="standings-body"></tbody>
     </table>
@@ -458,136 +194,169 @@
 
 </main>
 
-<script>
-// ── STATE ────────────────────────────────────────────────────
-// groups: array of string arrays  e.g. [["Team A1","Team A2"...],["Team B1"...]]
-// matches: [{id, g1, t1, g2, t2, s1, s2}]
-let groups = [];
+<script type="module">
+import { initializeApp }                        from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, set, onValue, get }  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+// ── FIREBASE CONFIG ────────────────────────────────────────
+const firebaseConfig = {
+  apiKey:            "AIzaSyAltYOtV8uXmsMmTgN5z-qBvsQCWNI68xc",
+  authDomain:        "badminton-fbf13.firebaseapp.com",
+  databaseURL:       "https://badminton-fbf13-default-rtdb.firebaseio.com",
+  projectId:         "badminton-fbf13",
+  storageBucket:     "badminton-fbf13.firebasestorage.app",
+  messagingSenderId: "38033616386",
+  appId:             "1:38033616386:web:b181af007abee92595c11b"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db    = getDatabase(fbApp);
+const ROOT  = ref(db, 'tournament');
+
+// ── STATE ──────────────────────────────────────────────────
+let groups  = [];
 let matches = [];
 
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const COLORS = [
-  '#f59e0b','#10b981','#3b82f6','#a855f7',
-  '#ef4444','#06b6d4','#f97316','#84cc16',
-  '#ec4899','#14b8a6','#8b5cf6','#eab308'
-];
+const COLORS  = ['#f59e0b','#10b981','#3b82f6','#a855f7','#ef4444','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6','#8b5cf6','#eab308'];
 
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyuTyYRRX0E2QW0B7frlIqccizQaqRVJg2HF6HaG-Tlxl7KK0voa-s00ALYnG7cjsR1/exec';
+// ── EXPOSE TO onclick HANDLERS ─────────────────────────────
+window.showPage         = showPage;
+window.updateConfigHint = updateConfigHint;
+window.applyConfig      = applyConfig;
+window.saveTeams        = saveTeams;
+window.resetAll         = resetAll;
+window.renderMatches    = renderMatches;
+window.renderStandings  = renderStandings;
+window.saveScore        = saveScore;
+window.clearScore       = clearScore;
+window.forceSyncFromFirebase = forceSyncFromFirebase;
 
-// ── SYNC STATUS ──────────────────────────────────────────────
+// ── SYNC STATUS ────────────────────────────────────────────
 function setSyncStatus(state, msg) {
   const dot = document.getElementById('sync-dot');
   const txt = document.getElementById('sync-text');
-  if (txt) txt.textContent = msg;
-  if (dot) dot.style.background = state === 'ok' ? '#10b981' : state === 'saving' ? '#f59e0b' : '#ef4444';
+  txt.textContent = msg;
+  dot.style.background =
+    state === 'ok'     ? '#10b981' :
+    state === 'saving' ? '#f59e0b' :
+    state === 'error'  ? '#ef4444' : '#64748b';
 }
 
-// ── SHEET PUSH (save scores to Google Sheet) ─────────────────
-async function pushToSheet() {
-  setSyncStatus('saving', 'Saving to Sheet…');
+// ── FIREBASE PUSH ──────────────────────────────────────────
+async function pushToFirebase() {
+  setSyncStatus('saving', '☁️ Saving…');
   try {
-    await fetch(SHEET_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'saveAll', matches })
-    });
-    setSyncStatus('ok', '☁️ Sheet saved ✓');
+    await set(ROOT, { groups, matches });
+    setSyncStatus('ok', '🔥 Saved ✓');
   } catch(e) {
-    setSyncStatus('error', '⚠️ Sheet save failed');
+    setSyncStatus('error', '⚠️ Save failed — check connection');
+    // Fallback: save locally
+    localStorage.setItem('shuttle_backup', JSON.stringify({ groups, matches }));
+    console.error('Firebase push error:', e);
   }
 }
 
-// ── SHEET PULL (load scores from Google Sheet) ───────────────
-async function pullFromSheet() {
-  if (matches.length === 0) return;
-  setSyncStatus('saving', 'Loading from Sheet…');
-  try {
-    const res = await fetch(SHEET_URL + '?t=' + Date.now());
-    const rows = await res.json();
-    if (!Array.isArray(rows) || rows.length === 0) {
-      setSyncStatus('ok', '☁️ Connected');
-      return;
+// ── FIREBASE REAL-TIME LISTENER ────────────────────────────
+function startRealtimeSync() {
+  setSyncStatus('saving', '🔥 Connecting…');
+  onValue(ROOT, (snapshot) => {
+    const data = snapshot.val();
+    if (data && data.groups && data.matches) {
+      groups  = data.groups;
+      matches = data.matches;
+      // Update UI
+      if (groups.length > 0) {
+        document.getElementById('cfg-teams').value  = groups.flat().length;
+        document.getElementById('cfg-groups').value = groups.length;
+        renderSetupGroups();
+        document.getElementById('setup-teams-section').style.display = 'block';
+        buildGroupFilter();
+      }
+      renderMatches();
+      renderStandings();
+      updateHeaderInfo();
+      setSyncStatus('ok', '🔥 Live sync active ✓');
+    } else {
+      // Firebase empty — try local backup
+      const backup = localStorage.getItem('shuttle_backup');
+      if (backup) {
+        try {
+          const s = JSON.parse(backup);
+          groups  = s.groups  || [];
+          matches = s.matches || [];
+          if (groups.length > 0) {
+            document.getElementById('cfg-teams').value  = groups.flat().length;
+            document.getElementById('cfg-groups').value = groups.length;
+            renderSetupGroups();
+            document.getElementById('setup-teams-section').style.display = 'block';
+            buildGroupFilter();
+          }
+          renderMatches();
+          renderStandings();
+          updateHeaderInfo();
+        } catch(e) {}
+      }
+      setSyncStatus('ok', '🔥 Connected — ready for data');
     }
-    rows.forEach(row => {
-      const m = matches.find(x => x.id == row.id);
-      if (!m) return;
-      m.s1 = (row.s1 === '' || row.s1 === null || row.s1 === undefined) ? null : Number(row.s1);
-      m.s2 = (row.s2 === '' || row.s2 === null || row.s2 === undefined) ? null : Number(row.s2);
-    });
-    localStorage.setItem('shuttle_v3', JSON.stringify({ groups, matches }));
-    renderMatches();
-    renderStandings();
-    setSyncStatus('ok', '☁️ Synced from Sheet ✓');
+  }, (error) => {
+    setSyncStatus('error', '⚠️ Connection lost — retrying…');
+    console.error('Firebase listener error:', error);
+  });
+}
+
+async function forceSyncFromFirebase() {
+  setSyncStatus('saving', '☁️ Syncing…');
+  try {
+    const snap = await get(ROOT);
+    const data = snap.val();
+    if (data && data.groups && data.matches) {
+      groups  = data.groups;
+      matches = data.matches;
+      buildGroupFilter();
+      renderMatches();
+      renderStandings();
+      updateHeaderInfo();
+      setSyncStatus('ok', '🔥 Synced ✓');
+    } else {
+      setSyncStatus('ok', '🔥 No data found in Firebase');
+    }
   } catch(e) {
-    setSyncStatus('error', '⚠️ Could not reach Sheet');
+    setSyncStatus('error', '⚠️ Sync failed');
   }
 }
 
-// ── INIT ─────────────────────────────────────────────────────
-function init() {
-  const saved = localStorage.getItem('shuttle_v3');
-  if (saved) {
-    try {
-      const s = JSON.parse(saved);
-      groups = s.groups;
-      matches = s.matches;
-      document.getElementById('cfg-teams').value = groups.flat().length;
-      document.getElementById('cfg-groups').value = groups.length;
-      renderSetupGroups();
-      document.getElementById('setup-teams-section').style.display = 'block';
-      // Pull latest scores from Google Sheet on page load
-      pullFromSheet();
-    } catch(e) { localStorage.removeItem('shuttle_v3'); }
-  }
-  updateConfigHint();
-  buildGroupFilter();
-  renderMatches();
-  renderStandings();
-  updateHeaderInfo();
-}
-
-function persist() {
-  localStorage.setItem('shuttle_v3', JSON.stringify({ groups, matches }));
-}
-
-// ── NAV ──────────────────────────────────────────────────────
+// ── NAV ────────────────────────────────────────────────────
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   document.querySelectorAll('nav button').forEach((b, i) => {
     b.classList.toggle('active', ['setup','matches','standings'][i] === name);
   });
-  if (name === 'matches') renderMatches();
+  if (name === 'matches')   renderMatches();
   if (name === 'standings') renderStandings();
 }
 
-// ── CONFIG ───────────────────────────────────────────────────
+// ── CONFIG ─────────────────────────────────────────────────
 function updateConfigHint() {
-  const t = parseInt(document.getElementById('cfg-teams').value) || 0;
+  const t = parseInt(document.getElementById('cfg-teams').value)  || 0;
   const g = parseInt(document.getElementById('cfg-groups').value) || 0;
   const hint = document.getElementById('cfg-hint');
   if (!t || !g || g > t || g < 2) {
-    hint.innerHTML = '<span style="color:var(--red)">⚠️ Enter valid numbers. Groups must be ≥ 2 and ≤ number of teams.</span>';
+    hint.innerHTML = '<span style="color:var(--red)">⚠️ Groups must be ≥ 2 and ≤ number of teams.</span>';
     return;
   }
-  // Calculate group sizes (ceiling divide, distribute remainder)
   const sizes = calcGroupSizes(t, g);
-  let totalMatches = 0;
-  for (let i = 0; i < g; i++)
-    for (let j = i+1; j < g; j++)
-      totalMatches += sizes[i] * sizes[j];
-  const perGroup = sizes[0];
-  hint.innerHTML = `${t} teams ÷ ${g} groups = <strong>~${perGroup} teams per group</strong>. Each group plays every other group. Total matches: <strong>${totalMatches}</strong>.`;
+  let total = 0;
+  for (let i = 0; i < g; i++) for (let j = i+1; j < g; j++) total += sizes[i] * sizes[j];
+  hint.innerHTML = `${t} teams ÷ ${g} groups = <strong>~${sizes[0]} teams per group</strong>. Each group plays every other group. Total matches: <strong>${total}</strong>.`;
 }
 
-function calcGroupSizes(totalTeams, numGroups) {
-  const sizes = [];
-  let rem = totalTeams;
+function calcGroupSizes(total, numGroups) {
+  const sizes = []; let rem = total;
   for (let i = 0; i < numGroups; i++) {
     const s = Math.ceil(rem / (numGroups - i));
-    sizes.push(s);
-    rem -= s;
+    sizes.push(s); rem -= s;
   }
   return sizes;
 }
@@ -602,7 +371,7 @@ function applyConfig() {
   const sizes = calcGroupSizes(t, g);
   groups = sizes.map((size, gi) => {
     const letter = LETTERS[gi] || `G${gi+1}`;
-    return Array.from({ length: size }, (_, ti) => `Team ${letter}${ti + 1}`);
+    return Array.from({ length: size }, (_, ti) => `Team ${letter}${ti+1}`);
   });
   renderSetupGroups();
   document.getElementById('setup-teams-section').style.display = 'block';
@@ -611,19 +380,18 @@ function applyConfig() {
 function renderSetupGroups() {
   document.getElementById('groups-grid').innerHTML = groups.map((grp, gi) => {
     const letter = LETTERS[gi] || `G${gi+1}`;
-    const color = COLORS[gi % COLORS.length];
+    const color  = COLORS[gi % COLORS.length];
     return `
       <div class="group-card">
         <h3>Group <span class="grp-badge" style="background:${color}">${letter}</span>
-          <span style="color:var(--muted);font-size:0.78rem;font-weight:400">${grp.length} teams</span>
+          <span style="color:var(--muted);font-size:.76rem;font-weight:400">${grp.length} teams</span>
         </h3>
         <div class="team-list">
           ${grp.map((name, ti) => `
             <div class="team-item">
               <div class="team-num">${ti+1}</div>
-              <input value="${name}" placeholder="Team name" data-gi="${gi}" data-ti="${ti}" />
-            </div>
-          `).join('')}
+              <input value="${name}" placeholder="Team name" data-gi="${gi}" data-ti="${ti}"/>
+            </div>`).join('')}
         </div>
       </div>`;
   }).join('');
@@ -631,198 +399,163 @@ function renderSetupGroups() {
 
 function saveTeams() {
   document.querySelectorAll('#groups-grid input').forEach(inp => {
-    const gi = parseInt(inp.dataset.gi);
-    const ti = parseInt(inp.dataset.ti);
+    const gi = parseInt(inp.dataset.gi), ti = parseInt(inp.dataset.ti);
     const letter = LETTERS[gi] || `G${gi+1}`;
     groups[gi][ti] = inp.value.trim() || `Team ${letter}${ti+1}`;
   });
   generateMatches();
-  persist();
+  pushToFirebase();
   updateHeaderInfo();
   buildGroupFilter();
   renderMatches();
-  alert(`✅ Saved! ${matches.length} matches generated across ${groups.length} groups.`);
+  alert(`✅ Saved to Firebase! ${matches.length} matches generated across ${groups.length} groups.`);
   showPage('matches');
 }
 
 function generateMatches() {
-  matches = [];
-  let id = 1;
-  // All inter-group matches: every team in group i plays every team in group j (i < j)
-  for (let gi = 0; gi < groups.length; gi++) {
-    for (let gj = gi + 1; gj < groups.length; gj++) {
-      for (let ti = 0; ti < groups[gi].length; ti++) {
-        for (let tj = 0; tj < groups[gj].length; tj++) {
+  matches = []; let id = 1;
+  for (let gi = 0; gi < groups.length; gi++)
+    for (let gj = gi+1; gj < groups.length; gj++)
+      for (let ti = 0; ti < groups[gi].length; ti++)
+        for (let tj = 0; tj < groups[gj].length; tj++)
           matches.push({ id: id++, g1: gi, t1: ti, g2: gj, t2: tj, s1: null, s2: null });
-        }
-      }
-    }
-  }
 }
 
 function resetAll() {
-  if (!confirm('Reset everything? All scores and team names will be cleared.')) return;
+  if (!confirm('Reset everything? All scores and team names will be permanently deleted from Firebase.')) return;
   groups = []; matches = [];
-  localStorage.removeItem('shuttle_v3');
+  set(ROOT, null);
+  localStorage.removeItem('shuttle_backup');
   document.getElementById('setup-teams-section').style.display = 'none';
-  document.getElementById('cfg-teams').value = 16;
+  document.getElementById('cfg-teams').value  = 16;
   document.getElementById('cfg-groups').value = 2;
-  updateConfigHint();
-  buildGroupFilter();
-  renderMatches();
-  renderStandings();
-  updateHeaderInfo();
+  updateConfigHint(); buildGroupFilter(); renderMatches(); renderStandings(); updateHeaderInfo();
 }
 
-// ── MATCHES ──────────────────────────────────────────────────
+// ── MATCHES ────────────────────────────────────────────────
 function buildGroupFilter() {
   const sel = document.getElementById('group-filter');
   sel.innerHTML = '<option value="all">All Matchups</option>';
-  for (let gi = 0; gi < groups.length; gi++) {
-    for (let gj = gi + 1; gj < groups.length; gj++) {
-      const la = LETTERS[gi] || `G${gi}`;
-      const lb = LETTERS[gj] || `G${gj}`;
+  for (let gi = 0; gi < groups.length; gi++)
+    for (let gj = gi+1; gj < groups.length; gj++) {
+      const la = LETTERS[gi]||`G${gi}`, lb = LETTERS[gj]||`G${gj}`;
       const opt = document.createElement('option');
       opt.value = `${gi}-${gj}`;
       opt.textContent = `Group ${la} vs Group ${lb}`;
       sel.appendChild(opt);
     }
-  }
 }
 
 function renderMatches() {
   if (matches.length === 0) {
     document.getElementById('matches-list').innerHTML =
-      '<div class="info-box">No matches yet. Go to <strong>Setup</strong>, enter your team count and group count, then save teams.</div>';
+      '<div class="info-box">No matches yet. Go to <strong>Setup</strong>, configure your tournament and save teams first.</div>';
     document.getElementById('match-progress').textContent = '';
     return;
   }
-
   const gf = document.getElementById('group-filter').value;
   const sf = document.getElementById('status-filter').value;
-
   const filtered = matches.filter(m => {
     if (gf !== 'all' && gf !== `${m.g1}-${m.g2}`) return false;
     if (sf === 'pending' && m.s1 !== null) return false;
-    if (sf === 'played' && m.s1 === null) return false;
+    if (sf === 'played'  && m.s1 === null) return false;
     return true;
   });
-
   const played = matches.filter(m => m.s1 !== null).length;
   document.getElementById('match-progress').textContent = `${played} / ${matches.length} played`;
-
-  if (filtered.length === 0) {
+  if (!filtered.length) {
     document.getElementById('matches-list').innerHTML = '<div class="info-box">No matches match the current filter.</div>';
     return;
   }
-
   document.getElementById('matches-list').innerHTML = filtered.map(m => {
-    const la = LETTERS[m.g1] || `G${m.g1}`;
-    const lb = LETTERS[m.g2] || `G${m.g2}`;
-    const c1 = COLORS[m.g1 % COLORS.length];
-    const c2 = COLORS[m.g2 % COLORS.length];
-    const t1name = (groups[m.g1] || [])[m.t1] || '?';
-    const t2name = (groups[m.g2] || [])[m.t2] || '?';
-    const isPlayed = m.s1 !== null;
+    const la = LETTERS[m.g1]||`G${m.g1}`, lb = LETTERS[m.g2]||`G${m.g2}`;
+    const c1 = COLORS[m.g1 % COLORS.length], c2 = COLORS[m.g2 % COLORS.length];
+    const t1 = (groups[m.g1]||[])[m.t1]||'?', t2 = (groups[m.g2]||[])[m.t2]||'?';
+    const played = m.s1 !== null;
     return `
-      <div class="match-row ${isPlayed ? 'played' : 'pending'}">
+      <div class="match-row ${played?'played':'pending'}">
         <div class="match-num">#${m.id}</div>
-        <div class="status-dot ${isPlayed ? 'dot-done' : 'dot-pending'}"></div>
+        <div class="status-dot ${played?'dot-done':'dot-pending'}"></div>
         <div class="match-teams">
-          <div class="team-name right">
-            <span class="grp-tag" style="background:${c1}">${la}</span>${t1name}
-          </div>
+          <div class="team-name right"><span class="grp-tag" style="background:${c1}">${la}</span>${t1}</div>
           <div class="vs">VS</div>
-          <div class="team-name">
-            <span class="grp-tag" style="background:${c2}">${lb}</span>${t2name}
-          </div>
+          <div class="team-name"><span class="grp-tag" style="background:${c2}">${lb}</span>${t2}</div>
         </div>
         <div class="score-inputs">
-          <input type="number" id="s1-${m.id}" value="${m.s1 !== null ? m.s1 : ''}" min="0" placeholder="–" />
+          <input type="number" id="s1-${m.id}" value="${m.s1!==null?m.s1:''}" min="0" placeholder="–"/>
           <span class="score-sep">:</span>
-          <input type="number" id="s2-${m.id}" value="${m.s2 !== null ? m.s2 : ''}" min="0" placeholder="–" />
+          <input type="number" id="s2-${m.id}" value="${m.s2!==null?m.s2:''}" min="0" placeholder="–"/>
         </div>
         <button class="save-btn" onclick="saveScore(${m.id})">Save</button>
-        ${isPlayed ? `<button class="edit-btn" onclick="clearScore(${m.id})">Clear</button>` : ''}
+        ${played?`<button class="edit-btn" onclick="clearScore(${m.id})">Clear</button>`:''}
       </div>`;
   }).join('');
 }
 
 function saveScore(id) {
-  const m = matches.find(x => x.id === id);
-  const s1 = parseInt(document.getElementById('s1-' + id).value);
-  const s2 = parseInt(document.getElementById('s2-' + id).value);
-  if (isNaN(s1) || isNaN(s2) || s1 < 0 || s2 < 0) { alert('Enter valid scores for both teams.'); return; }
+  const m  = matches.find(x => x.id === id);
+  const s1 = parseInt(document.getElementById('s1-'+id).value);
+  const s2 = parseInt(document.getElementById('s2-'+id).value);
+  if (isNaN(s1)||isNaN(s2)||s1<0||s2<0) { alert('Enter valid scores for both teams.'); return; }
   m.s1 = s1; m.s2 = s2;
-  persist();
-  pushToSheet();
+  pushToFirebase();
   renderMatches();
 }
 
 function clearScore(id) {
   const m = matches.find(x => x.id === id);
   m.s1 = null; m.s2 = null;
-  persist();
-  pushToSheet();
+  pushToFirebase();
   renderMatches();
 }
 
-// ── STANDINGS ────────────────────────────────────────────────
+// ── STANDINGS ──────────────────────────────────────────────
 function renderStandings() {
   const totalTeams = groups.flat().length;
-  document.getElementById('standings-label').textContent = `ALL ${totalTeams || ''} TEAMS`;
-
-  if (groups.length === 0) {
+  document.getElementById('standings-label').textContent = `ALL ${totalTeams||''} TEAMS`;
+  if (!groups.length) {
     document.getElementById('standings-body').innerHTML =
       '<tr><td colspan="10" style="color:var(--muted);padding:20px;text-align:center">Set up your tournament first.</td></tr>';
     document.getElementById('stats-row').innerHTML = '';
     return;
   }
-
-  // Flat stats array, preserving group + index info
-  const stats = groups.flatMap((grp, gi) =>
-    grp.map((name, ti) => ({ name, gi, ti, P:0, W:0, L:0, PF:0, PA:0 }))
-  );
-
-  // Map (gi, ti) → flat index
-  const offsets = groups.map((_, gi) => groups.slice(0, gi).reduce((a, g) => a + g.length, 0));
-  const key = (gi, ti) => offsets[gi] + ti;
+  const stats   = groups.flatMap((grp,gi) => grp.map((name,ti) => ({name,gi,ti,P:0,W:0,L:0,PF:0,PA:0})));
+  const offsets = groups.map((_,gi) => groups.slice(0,gi).reduce((a,g)=>a+g.length,0));
+  const key     = (gi,ti) => offsets[gi]+ti;
 
   matches.forEach(m => {
-    if (m.s1 === null) return;
-    const k1 = key(m.g1, m.t1), k2 = key(m.g2, m.t2);
+    if (m.s1===null) return;
+    const k1=key(m.g1,m.t1), k2=key(m.g2,m.t2);
     stats[k1].P++; stats[k2].P++;
-    stats[k1].PF += m.s1; stats[k1].PA += m.s2;
-    stats[k2].PF += m.s2; stats[k2].PA += m.s1;
-    if (m.s1 > m.s2)      { stats[k1].W++; stats[k2].L++; }
-    else if (m.s2 > m.s1) { stats[k2].W++; stats[k1].L++; }
-    else                   { stats[k1].W++; stats[k2].W++; }
+    stats[k1].PF+=m.s1; stats[k1].PA+=m.s2;
+    stats[k2].PF+=m.s2; stats[k2].PA+=m.s1;
+    if (m.s1>m.s2)      { stats[k1].W++; stats[k2].L++; }
+    else if (m.s2>m.s1) { stats[k2].W++; stats[k1].L++; }
+    else                 { stats[k1].W++; stats[k2].W++; }
   });
 
-  stats.forEach(s => { s.pts = s.W * 2; s.diff = s.PF - s.PA; });
-  stats.sort((a, b) => b.pts - a.pts || b.diff - a.diff || b.PF - a.PF);
+  stats.forEach(s => { s.pts=s.W*2; s.diff=s.PF-s.PA; });
+  stats.sort((a,b) => b.pts-a.pts || b.diff-a.diff || b.PF-a.PF);
 
-  const totalPlayed = matches.filter(m => m.s1 !== null).length;
+  const totalPlayed  = matches.filter(m=>m.s1!==null).length;
   const totalMatches = matches.length;
 
   document.getElementById('stats-row').innerHTML = `
     <div class="stat-card"><div class="val">${totalTeams}</div><div class="lbl">Teams</div></div>
     <div class="stat-card"><div class="val">${groups.length}</div><div class="lbl">Groups</div></div>
-    <div class="stat-card"><div class="val">${totalMatches}</div><div class="lbl">Total Matches</div></div>
+    <div class="stat-card"><div class="val">${totalMatches}</div><div class="lbl">Matches</div></div>
     <div class="stat-card"><div class="val">${totalPlayed}</div><div class="lbl">Played</div></div>
-    <div class="stat-card"><div class="val">${totalMatches - totalPlayed}</div><div class="lbl">Remaining</div></div>
-    <div class="stat-card"><div class="val">${stats[0] ? stats[0].pts : 0}</div><div class="lbl">Leader Pts</div></div>
-  `;
+    <div class="stat-card"><div class="val">${totalMatches-totalPlayed}</div><div class="lbl">Remaining</div></div>
+    <div class="stat-card"><div class="val">${stats[0]?stats[0].pts:0}</div><div class="lbl">Leader Pts</div></div>`;
 
-  const maxPts = Math.max(...stats.map(s => s.pts), 1);
-
-  document.getElementById('standings-body').innerHTML = stats.map((s, i) => {
-    const rank = i + 1;
-    const rankClass = rank <= 3 ? `rank-${rank}` : 'rank-other';
-    const diffClass = s.diff > 0 ? 'diff-pos' : s.diff < 0 ? 'diff-neg' : '';
-    const letter = LETTERS[s.gi] || `G${s.gi}`;
-    const color = COLORS[s.gi % COLORS.length];
-    const pct = (s.pts / maxPts * 100).toFixed(1);
+  const maxPts = Math.max(...stats.map(s=>s.pts),1);
+  document.getElementById('standings-body').innerHTML = stats.map((s,i) => {
+    const rank      = i+1;
+    const rankClass = rank<=3?`rank-${rank}`:'rank-other';
+    const diffClass = s.diff>0?'diff-pos':s.diff<0?'diff-neg':'';
+    const letter    = LETTERS[s.gi]||`G${s.gi}`;
+    const color     = COLORS[s.gi%COLORS.length];
+    const pct       = (s.pts/maxPts*100).toFixed(1);
     return `
       <tr>
         <td><span class="rank-badge ${rankClass}">${rank}</span></td>
@@ -830,13 +563,12 @@ function renderStandings() {
           <div style="font-weight:600">${s.name}</div>
           <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
         </td>
-        <td><span class="grp-badge" style="background:${color};padding:2px 7px;border-radius:4px;font-size:0.72rem">${letter}</span></td>
+        <td><span class="grp-badge" style="background:${color};padding:2px 7px;border-radius:4px;font-size:.7rem">${letter}</span></td>
         <td>${s.P}</td>
         <td style="color:var(--accent2)">${s.W}</td>
         <td style="color:var(--red)">${s.L}</td>
-        <td>${s.PF}</td>
-        <td>${s.PA}</td>
-        <td class="${diffClass}">${s.diff > 0 ? '+' : ''}${s.diff}</td>
+        <td>${s.PF}</td><td>${s.PA}</td>
+        <td class="${diffClass}">${s.diff>0?'+':''}${s.diff}</td>
         <td class="pts">${s.pts}</td>
       </tr>`;
   }).join('');
@@ -845,11 +577,15 @@ function renderStandings() {
 function updateHeaderInfo() {
   const t = groups.flat().length;
   document.getElementById('header-info').textContent =
-    t > 0 ? `${t} Teams · ${groups.length} Groups` : 'Badminton Tournament';
+    t>0 ? `${t} Teams · ${groups.length} Groups` : 'Badminton Tournament';
 }
 
-// ── START ────────────────────────────────────────────────────
-init();
+// ── START ──────────────────────────────────────────────────
+updateConfigHint();
+buildGroupFilter();
+renderMatches();
+renderStandings();
+startRealtimeSync(); // connects to Firebase and listens for live changes
 </script>
 </body>
 </html>
