@@ -14,7 +14,6 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
 
-  /* HEADER */
   header{background:linear-gradient(135deg,#0a0e1a,#1a1025);border-bottom:2px solid var(--accent);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
   header h1{font-family:'Bebas Neue';font-size:1.9rem;letter-spacing:3px;color:var(--accent);text-shadow:0 0 20px rgba(245,158,11,.4);}
   .hdr-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
@@ -22,7 +21,6 @@
   .sync-row{display:flex;align-items:center;gap:6px;font-size:.74rem;color:var(--muted);}
   #sync-dot{width:9px;height:9px;border-radius:50%;background:var(--muted);transition:background .4s;flex-shrink:0;}
 
-  /* NAV */
   nav{display:flex;gap:8px;padding:10px 28px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;}
   nav button{padding:7px 18px;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:6px;cursor:pointer;font-family:'DM Sans';font-size:.88rem;transition:all .2s;white-space:nowrap;}
   nav button.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;}
@@ -31,7 +29,6 @@
   main{max-width:1200px;margin:0 auto;padding:22px 28px;}
   .page{display:none;} .page.active{display:block;}
 
-  /* CONFIG PANEL */
   .config-panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:22px;}
   .config-panel h2{font-family:'Bebas Neue';font-size:1.2rem;letter-spacing:2px;color:var(--accent);margin-bottom:16px;}
   .config-row{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px;}
@@ -42,7 +39,6 @@
   .config-hint{background:var(--surface2);border-left:3px solid var(--accent);padding:9px 14px;border-radius:0 8px 8px 0;font-size:.83rem;color:var(--muted);line-height:1.6;}
   .config-hint strong{color:var(--text);}
 
-  /* GROUPS GRID */
   .groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-bottom:18px;}
   .group-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;}
   .group-card h3{font-family:'Bebas Neue';font-size:1rem;letter-spacing:2px;margin-bottom:10px;display:flex;align-items:center;gap:7px;}
@@ -52,7 +48,6 @@
   .team-num{background:var(--border);color:var(--muted);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;}
   .team-item input{flex:1;background:transparent;border:none;color:var(--text);font-family:'DM Sans';font-size:.88rem;outline:none;}
 
-  /* BUTTONS */
   .btn{padding:10px 22px;border:none;border-radius:8px;cursor:pointer;font-family:'DM Sans';font-weight:700;font-size:.92rem;transition:all .2s;}
   .btn-primary{background:var(--accent);color:#000;}
   .btn-primary:hover{background:#d97706;transform:translateY(-1px);}
@@ -60,7 +55,6 @@
   .btn-sm{padding:6px 13px;font-size:.8rem;border-radius:6px;}
   .flex{display:flex;align-items:center;} .gap{gap:10px;} .mt{margin-top:14px;} .mb{margin-bottom:14px;}
 
-  /* MATCHES */
   .match-controls{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
   .match-controls select{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;font-family:'DM Sans';font-size:.85rem;}
   .matches-list{display:flex;flex-direction:column;gap:7px;}
@@ -84,7 +78,6 @@
   .status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
   .dot-done{background:var(--accent2);} .dot-pending{background:var(--border);}
 
-  /* STANDINGS */
   .standings-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:10px;flex-wrap:wrap;}
   .standings-title{font-family:'Bebas Neue';font-size:1.4rem;letter-spacing:2px;color:var(--accent);}
   .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:9px;margin-bottom:18px;}
@@ -108,7 +101,7 @@
 
   @media(max-width:700px){
     main{padding:12px;} header{padding:12px 14px;} nav{padding:8px 12px;}
-    .standings-table th,.standings-table td{padding:7px 7px;font-size:.76rem;}
+    .standings-table th,.standings-table td{padding:7px;font-size:.76rem;}
   }
 </style>
 </head>
@@ -117,10 +110,10 @@
 <header>
   <h1>🏸 Shuttle Score</h1>
   <div class="hdr-right">
-    <span id="header-info">Badminton Tournament</span>
+    <span id="header-info">Loading…</span>
     <div class="sync-row">
       <span id="sync-dot"></span>
-      <span id="sync-text">Connecting…</span>
+      <span id="sync-text">Connecting to Firebase…</span>
     </div>
   </div>
 </header>
@@ -132,7 +125,6 @@
 </nav>
 
 <main>
-
   <!-- SETUP -->
   <div id="page-setup" class="page active">
     <div class="config-panel">
@@ -148,7 +140,7 @@
         </div>
         <button class="btn btn-primary" onclick="applyConfig()">→ Set Up Teams</button>
       </div>
-      <div class="config-hint" id="cfg-hint">16 teams ÷ 2 groups = <strong>8 teams per group</strong>.</div>
+      <div class="config-hint" id="cfg-hint">Loading config…</div>
     </div>
     <div id="setup-teams-section" style="display:none">
       <div class="section-label mb">Step 2 — Name Your Teams</div>
@@ -191,27 +183,30 @@
       <tbody id="standings-body"></tbody>
     </table>
   </div>
-
 </main>
 
 <script type="module">
-import { initializeApp }                        from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getDatabase, ref, set, onValue, get }  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+// ── IMPORT CONFIG ──────────────────────────────────────────
+import CONFIG from './config.js';
 
-// ── FIREBASE CONFIG ────────────────────────────────────────
-const firebaseConfig = {
-  apiKey:            "AIzaSyAltYOtV8uXmsMmTgN5z-qBvsQCWNI68xc",
-  authDomain:        "badminton-fbf13.firebaseapp.com",
-  databaseURL:       "https://badminton-fbf13-default-rtdb.firebaseio.com",
-  projectId:         "badminton-fbf13",
-  storageBucket:     "badminton-fbf13.firebasestorage.app",
-  messagingSenderId: "38033616386",
-  appId:             "1:38033616386:web:b181af007abee92595c11b"
-};
+// ── IMPORT FIREBASE ────────────────────────────────────────
+import { initializeApp }                       from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, set, onValue, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
-const fbApp = initializeApp(firebaseConfig);
+// ── INIT FIREBASE FROM CONFIG ──────────────────────────────
+const fbApp = initializeApp(CONFIG.firebase);
 const db    = getDatabase(fbApp);
-const ROOT  = ref(db, 'tournament');
+const ROOT  = ref(db, CONFIG.dbPath);
+
+// ── APP SETTINGS FROM CONFIG ───────────────────────────────
+const { pointsForWin, pointsForLoss, pointsForDraw, name: tournamentName } = CONFIG.tournament;
+
+// Set page title from config
+document.title = `🏸 ${tournamentName}`;
+
+// Set default inputs from config
+document.getElementById('cfg-teams').value  = CONFIG.tournament.defaultTeams;
+document.getElementById('cfg-groups').value = CONFIG.tournament.defaultGroups;
 
 // ── STATE ──────────────────────────────────────────────────
 let groups  = [];
@@ -221,15 +216,15 @@ const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const COLORS  = ['#f59e0b','#10b981','#3b82f6','#a855f7','#ef4444','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6','#8b5cf6','#eab308'];
 
 // ── EXPOSE TO onclick HANDLERS ─────────────────────────────
-window.showPage         = showPage;
-window.updateConfigHint = updateConfigHint;
-window.applyConfig      = applyConfig;
-window.saveTeams        = saveTeams;
-window.resetAll         = resetAll;
-window.renderMatches    = renderMatches;
-window.renderStandings  = renderStandings;
-window.saveScore        = saveScore;
-window.clearScore       = clearScore;
+window.showPage             = showPage;
+window.updateConfigHint     = updateConfigHint;
+window.applyConfig          = applyConfig;
+window.saveTeams            = saveTeams;
+window.resetAll             = resetAll;
+window.renderMatches        = renderMatches;
+window.renderStandings      = renderStandings;
+window.saveScore            = saveScore;
+window.clearScore           = clearScore;
 window.forceSyncFromFirebase = forceSyncFromFirebase;
 
 // ── SYNC STATUS ────────────────────────────────────────────
@@ -250,8 +245,7 @@ async function pushToFirebase() {
     await set(ROOT, { groups, matches });
     setSyncStatus('ok', '🔥 Saved ✓');
   } catch(e) {
-    setSyncStatus('error', '⚠️ Save failed — check connection');
-    // Fallback: save locally
+    setSyncStatus('error', '⚠️ Save failed — saved locally as backup');
     localStorage.setItem('shuttle_backup', JSON.stringify({ groups, matches }));
     console.error('Firebase push error:', e);
   }
@@ -265,7 +259,6 @@ function startRealtimeSync() {
     if (data && data.groups && data.matches) {
       groups  = data.groups;
       matches = data.matches;
-      // Update UI
       if (groups.length > 0) {
         document.getElementById('cfg-teams').value  = groups.flat().length;
         document.getElementById('cfg-groups').value = groups.length;
@@ -278,7 +271,7 @@ function startRealtimeSync() {
       updateHeaderInfo();
       setSyncStatus('ok', '🔥 Live sync active ✓');
     } else {
-      // Firebase empty — try local backup
+      // Nothing in Firebase yet — try local backup
       const backup = localStorage.getItem('shuttle_backup');
       if (backup) {
         try {
@@ -299,9 +292,9 @@ function startRealtimeSync() {
       }
       setSyncStatus('ok', '🔥 Connected — ready for data');
     }
-  }, (error) => {
-    setSyncStatus('error', '⚠️ Connection lost — retrying…');
-    console.error('Firebase listener error:', error);
+  }, (err) => {
+    setSyncStatus('error', '⚠️ Connection lost');
+    console.error(err);
   });
 }
 
@@ -319,7 +312,7 @@ async function forceSyncFromFirebase() {
       updateHeaderInfo();
       setSyncStatus('ok', '🔥 Synced ✓');
     } else {
-      setSyncStatus('ok', '🔥 No data found in Firebase');
+      setSyncStatus('ok', '🔥 No data in Firebase yet');
     }
   } catch(e) {
     setSyncStatus('error', '⚠️ Sync failed');
@@ -337,7 +330,7 @@ function showPage(name) {
   if (name === 'standings') renderStandings();
 }
 
-// ── CONFIG ─────────────────────────────────────────────────
+// ── CONFIG HINT ────────────────────────────────────────────
 function updateConfigHint() {
   const t = parseInt(document.getElementById('cfg-teams').value)  || 0;
   const g = parseInt(document.getElementById('cfg-groups').value) || 0;
@@ -349,7 +342,7 @@ function updateConfigHint() {
   const sizes = calcGroupSizes(t, g);
   let total = 0;
   for (let i = 0; i < g; i++) for (let j = i+1; j < g; j++) total += sizes[i] * sizes[j];
-  hint.innerHTML = `${t} teams ÷ ${g} groups = <strong>~${sizes[0]} teams per group</strong>. Each group plays every other group. Total matches: <strong>${total}</strong>.`;
+  hint.innerHTML = `${t} teams ÷ ${g} groups = <strong>~${sizes[0]} teams per group</strong>. Each group plays every other group. Total matches: <strong>${total}</strong>. Win = <strong>${pointsForWin} pts</strong>, Draw = <strong>${pointsForDraw} pt</strong>, Loss = <strong>${pointsForLoss} pts</strong>.`;
 }
 
 function calcGroupSizes(total, numGroups) {
@@ -361,6 +354,7 @@ function calcGroupSizes(total, numGroups) {
   return sizes;
 }
 
+// ── SETUP ──────────────────────────────────────────────────
 function applyConfig() {
   const t = parseInt(document.getElementById('cfg-teams').value);
   const g = parseInt(document.getElementById('cfg-groups').value);
@@ -408,7 +402,7 @@ function saveTeams() {
   updateHeaderInfo();
   buildGroupFilter();
   renderMatches();
-  alert(`✅ Saved to Firebase! ${matches.length} matches generated across ${groups.length} groups.`);
+  alert(`✅ Saved to Firebase!\n${matches.length} matches generated across ${groups.length} groups.`);
   showPage('matches');
 }
 
@@ -427,8 +421,8 @@ function resetAll() {
   set(ROOT, null);
   localStorage.removeItem('shuttle_backup');
   document.getElementById('setup-teams-section').style.display = 'none';
-  document.getElementById('cfg-teams').value  = 16;
-  document.getElementById('cfg-groups').value = 2;
+  document.getElementById('cfg-teams').value  = CONFIG.tournament.defaultTeams;
+  document.getElementById('cfg-groups').value = CONFIG.tournament.defaultGroups;
   updateConfigHint(); buildGroupFilter(); renderMatches(); renderStandings(); updateHeaderInfo();
 }
 
@@ -447,7 +441,7 @@ function buildGroupFilter() {
 }
 
 function renderMatches() {
-  if (matches.length === 0) {
+  if (!matches.length) {
     document.getElementById('matches-list').innerHTML =
       '<div class="info-box">No matches yet. Go to <strong>Setup</strong>, configure your tournament and save teams first.</div>';
     document.getElementById('match-progress').textContent = '';
@@ -468,9 +462,9 @@ function renderMatches() {
     return;
   }
   document.getElementById('matches-list').innerHTML = filtered.map(m => {
-    const la = LETTERS[m.g1]||`G${m.g1}`, lb = LETTERS[m.g2]||`G${m.g2}`;
-    const c1 = COLORS[m.g1 % COLORS.length], c2 = COLORS[m.g2 % COLORS.length];
-    const t1 = (groups[m.g1]||[])[m.t1]||'?', t2 = (groups[m.g2]||[])[m.t2]||'?';
+    const la=LETTERS[m.g1]||`G${m.g1}`, lb=LETTERS[m.g2]||`G${m.g2}`;
+    const c1=COLORS[m.g1%COLORS.length], c2=COLORS[m.g2%COLORS.length];
+    const t1=(groups[m.g1]||[])[m.t1]||'?', t2=(groups[m.g2]||[])[m.t2]||'?';
     const played = m.s1 !== null;
     return `
       <div class="match-row ${played?'played':'pending'}">
@@ -524,17 +518,18 @@ function renderStandings() {
   const key     = (gi,ti) => offsets[gi]+ti;
 
   matches.forEach(m => {
-    if (m.s1===null) return;
+    if (m.s1 === null) return;
     const k1=key(m.g1,m.t1), k2=key(m.g2,m.t2);
     stats[k1].P++; stats[k2].P++;
-    stats[k1].PF+=m.s1; stats[k1].PA+=m.s2;
-    stats[k2].PF+=m.s2; stats[k2].PA+=m.s1;
-    if (m.s1>m.s2)      { stats[k1].W++; stats[k2].L++; }
-    else if (m.s2>m.s1) { stats[k2].W++; stats[k1].L++; }
-    else                 { stats[k1].W++; stats[k2].W++; }
+    stats[k1].PF += m.s1; stats[k1].PA += m.s2;
+    stats[k2].PF += m.s2; stats[k2].PA += m.s1;
+    if      (m.s1 > m.s2) { stats[k1].W += pointsForWin;  stats[k2].W += pointsForLoss; stats[k1].L++; }
+    else if (m.s2 > m.s1) { stats[k2].W += pointsForWin;  stats[k1].W += pointsForLoss; stats[k2].L++; }
+    else                   { stats[k1].W += pointsForDraw; stats[k2].W += pointsForDraw; }
   });
 
-  stats.forEach(s => { s.pts=s.W*2; s.diff=s.PF-s.PA; });
+  // pts = accumulated W field (which already has points factored in)
+  stats.forEach(s => { s.pts = s.W; s.diff = s.PF - s.PA; });
   stats.sort((a,b) => b.pts-a.pts || b.diff-a.diff || b.PF-a.PF);
 
   const totalPlayed  = matches.filter(m=>m.s1!==null).length;
@@ -548,7 +543,7 @@ function renderStandings() {
     <div class="stat-card"><div class="val">${totalMatches-totalPlayed}</div><div class="lbl">Remaining</div></div>
     <div class="stat-card"><div class="val">${stats[0]?stats[0].pts:0}</div><div class="lbl">Leader Pts</div></div>`;
 
-  const maxPts = Math.max(...stats.map(s=>s.pts),1);
+  const maxPts = Math.max(...stats.map(s=>s.pts), 1);
   document.getElementById('standings-body').innerHTML = stats.map((s,i) => {
     const rank      = i+1;
     const rankClass = rank<=3?`rank-${rank}`:'rank-other';
@@ -577,7 +572,7 @@ function renderStandings() {
 function updateHeaderInfo() {
   const t = groups.flat().length;
   document.getElementById('header-info').textContent =
-    t>0 ? `${t} Teams · ${groups.length} Groups` : 'Badminton Tournament';
+    t > 0 ? `${t} Teams · ${groups.length} Groups` : tournamentName;
 }
 
 // ── START ──────────────────────────────────────────────────
@@ -585,7 +580,7 @@ updateConfigHint();
 buildGroupFilter();
 renderMatches();
 renderStandings();
-startRealtimeSync(); // connects to Firebase and listens for live changes
+startRealtimeSync();
 </script>
 </body>
 </html>
