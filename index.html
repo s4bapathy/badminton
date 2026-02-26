@@ -397,7 +397,7 @@ function loadTournament(tid) {
   if (!t) return;
   // Populate setup fields
   document.getElementById('cfg-tname').value  = t.name || '';
-  document.getElementById('cfg-teams').value  = (t.groups||[]).flat().length || 16;
+  document.getElementById('cfg-teams').value  = (t.groups||[]).reduce((a,g)=>a+(g.teams||[]).length,0) || 16;
   document.getElementById('cfg-groups').value = (t.groups||[]).length || 2;
   if ((t.groups||[]).length) {
     renderSetupGroups();
@@ -790,7 +790,7 @@ function renderPlayoff() {
         <div class="bracket-round-title">🏅 RESULTS</div>
         <div class="bracket-slots" style="gap:14px;padding:0 10px">
           ${resultBadge('🥇 Champion',   mA_w?.name)}
-          ${resultBadge('🥈 Runner-up',  mA_l?.name)}
+          ${resultBadge('🥈 Runner-up',  mA_l?.name ? (mC_done ? (mC_w?.name === mA_l?.name ? mA_l?.name : mA_l?.name) : mA_l?.name) : 'TBD')}
           ${resultBadge('🥉 3rd Place',  mC_w?.name)}
         </div>
       </div>
