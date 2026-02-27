@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>🏸 Badminton Tournament</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -147,17 +147,105 @@
   .info-box strong{color:var(--text);}
   .section-label{font-family:'Bebas Neue';font-size:.92rem;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
 
-  @media(max-width:700px){
-    main{padding:10px;} header{padding:10px 12px;} nav{padding:8px 10px;}
-    .standings-table th,.standings-table td{padding:6px 7px;font-size:.74rem;}
-    .bracket-round{min-width:160px;}
+  /* ── RESPONSIVE — TABLET (768px) ── */
+  @media(max-width:768px){
+    main{padding:14px 16px;}
+    header{padding:12px 16px;}
+    header h1{font-size:1.5rem;}
+    nav{padding:8px 12px;gap:5px;}
+    nav button{padding:6px 12px;font-size:.8rem;}
+    .panel{padding:16px;}
+    .field-row{flex-direction:column;align-items:stretch;}
+    .field input[type=text]{min-width:unset;width:100%;}
+    .groups-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));}
+    .stats-row{grid-template-columns:repeat(3,1fr);}
+    .standings-table th,.standings-table td{padding:8px 8px;font-size:.78rem;}
+    /* Hide less important standings columns on tablet */
+    .standings-table th:nth-child(7),
+    .standings-table td:nth-child(7),
+    .standings-table th:nth-child(8),
+    .standings-table td:nth-child(8){display:none;}
+    .bracket-wrap{gap:0;}
+    .bracket-round{min-width:170px;}
+    .match-row{padding:9px 10px;gap:7px;}
+    .tournament-card{padding:12px 14px;}
+  }
+
+  /* ── RESPONSIVE — MOBILE (480px) ── */
+  @media(max-width:480px){
+    main{padding:10px;}
+    header{padding:10px 12px;flex-direction:column;align-items:flex-start;gap:6px;}
+    header h1{font-size:1.4rem;}
+    .hdr-right{align-items:flex-start;}
+    nav{padding:8px;gap:4px;justify-content:flex-start;}
+    nav button{padding:6px 10px;font-size:.75rem;letter-spacing:0;}
+    .panel{padding:13px;}
+    .panel h2{font-size:1rem;}
+    .field-row{flex-direction:column;gap:10px;}
+    .field input[type=number]{width:100%;}
+    .field input[type=text]{width:100%;}
+    .groups-grid{grid-template-columns:1fr;}
+    .stats-row{grid-template-columns:repeat(2,1fr);gap:7px;}
+    .stat-card{padding:10px;}
+    .stat-card .val{font-size:1.4rem;}
+
+    /* Standings — hide extra columns, keep key info */
+    .standings-table th:nth-child(7),
+    .standings-table td:nth-child(7),
+    .standings-table th:nth-child(8),
+    .standings-table td:nth-child(8),
+    .standings-table th:nth-child(6),
+    .standings-table td:nth-child(6){display:none;}
+    .standings-table th,.standings-table td{padding:7px 5px;font-size:.72rem;}
+
+    /* Matches — stack score inputs */
+    .match-row{flex-wrap:wrap;padding:9px 10px;gap:6px;}
+    .match-teams{min-width:100%;order:1;}
+    .score-inputs{order:2;}
+    .save-btn,.edit-btn{order:3;}
+    .match-num,.status-dot{order:0;}
+    .score-inputs input{width:42px;}
+
+    /* Bracket — horizontal scroll on mobile */
+    .bracket-wrap{overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch;}
+    .bracket-round{min-width:150px;flex-shrink:0;}
+    .bracket-round-title{font-size:.72rem;padding:6px;}
+    .bracket-team{padding:6px 8px;font-size:.78rem;}
+    .bracket-score{font-size:.9rem;}
+    .bracket-score-inputs{padding:5px 7px;gap:3px;}
+    .bracket-score-inputs input{width:38px;font-size:.8rem;}
+
+    /* Tournament cards */
+    .tournament-card{flex-direction:column;align-items:flex-start;gap:8px;}
+
+    /* Config hint smaller */
+    .hint{font-size:.76rem;}
+
+    /* Group cards full width */
+    .group-card{padding:11px;}
+    .team-item{padding:5px 8px;}
+
+    /* Buttons full width on mobile */
+    .btn{padding:10px 16px;width:100%;text-align:center;}
+    .btn-sm{width:auto;}
+    .flex.gap{flex-wrap:wrap;}
+  }
+
+  /* ── TOUCH IMPROVEMENTS ── */
+  @media(hover:none){
+    /* Bigger tap targets for touch screens */
+    .save-btn{padding:9px 16px;}
+    .edit-btn{padding:9px 14px;}
+    nav button{padding:9px 14px;}
+    .score-inputs input{padding:8px 3px;font-size:1rem;}
+    .bracket-score-inputs input{padding:7px 4px;}
   }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🏸Scarborough Warriors Badminton Tournament</h1>
+  <h1>🏸 Shuttle Score</h1>
   <div class="hdr-right">
     <span id="header-info">Badminton Tournament</span>
     <div class="sync-row">
@@ -244,12 +332,14 @@
     </div>
     <div class="stats-row" id="stats-row"></div>
     <div class="section-label mb" id="standings-label">ALL TEAMS</div>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
     <table class="standings-table">
       <thead>
         <tr><th>#</th><th>Team</th><th>Group</th><th>P</th><th>W</th><th>L</th><th>PF</th><th>PA</th><th>Diff</th><th>Pts</th></tr>
       </thead>
       <tbody id="standings-body"></tbody>
     </table>
+    </div>
     <div class="hint" style="margin-top:8px">🟢 Top 4 teams qualify for playoffs. Tiebreaker: Points Diff → Points For.</div>
   </div>
 
