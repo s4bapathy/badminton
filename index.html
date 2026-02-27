@@ -237,7 +237,7 @@
   .photo-card:hover img{transform:scale(1.05);}
   .photo-card .photo-del{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;}
   .photo-card:hover .photo-del{opacity:1;}
-  #photo-drop-zone:hover{border-color:var(--accent);}
+  #photo-drop-zone:hover{border-color:var(--accent);background:rgba(245,158,11,.04);}
   .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;}
   .lightbox img{max-width:100%;max-height:90vh;border-radius:10px;object-fit:contain;}
   .lightbox-close{position:fixed;top:16px;right:20px;color:#fff;font-size:2rem;cursor:pointer;background:none;border:none;line-height:1;z-index:10;}
@@ -291,10 +291,7 @@
     <h2>🔐 Admin Login</h2>
     <p>Enter the admin PIN to make changes.<br>Or continue as a viewer to watch the tournament.</p>
     <div class="pin-dots" id="pin-dots-row">
-      <div class="pin-dot" id="pd0"></div>
-      <div class="pin-dot" id="pd1"></div>
-      <div class="pin-dot" id="pd2"></div>
-      <div class="pin-dot" id="pd3"></div>
+      <!-- dots generated dynamically by updatePinDots() on init -->
     </div>
     <div class="pin-pad">
       <button class="pin-btn" onclick="pinPress('1')">1</button>
@@ -318,25 +315,25 @@
 <header>
   <h1>🏸 Scarborough Warriors Badminton Tournament</h1>
   <div class="hdr-right">
-    <div style="display:flex;align-items:center;gap:6px">
-      <span id="header-info">Badminton Tournament</span>
-      <span id="role-badge" class="viewer-badge">👁 Viewer</span>
-    </div>
+    <span id="header-info" style="font-size:.76rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase">Badminton Tournament</span>
     <div class="sync-row">
       <span id="sync-dot"></span>
       <span id="sync-text">Connecting…</span>
-      <button id="admin-logout-btn" onclick="logoutAdmin()" style="display:none;background:transparent;border:1px solid var(--border);color:var(--muted);padding:2px 8px;border-radius:4px;cursor:pointer;font-size:.7rem;font-family:'DM Sans'">🔒 Lock</button>
+      <!-- ADMIN: shown when logged in as admin -->
+      <button id="admin-logout-btn" onclick="logoutAdmin()" style="display:none;background:rgba(239,68,68,.2);border:2px solid var(--red);color:var(--red);padding:7px 16px;border-radius:8px;cursor:pointer;font-size:.85rem;font-family:'DM Sans';font-weight:700;white-space:nowrap;letter-spacing:.3px">🔑 Admin · Lock</button>
+      <!-- VIEWER: shown when in viewer mode -->
+      <button id="viewer-login-btn" onclick="showPinOverlay()" style="display:none;background:rgba(245,158,11,.15);border:2px solid var(--accent);color:var(--accent);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:.85rem;font-family:'DM Sans';font-weight:700;white-space:nowrap;letter-spacing:.3px">🔐 Admin Login</button>
     </div>
   </div>
 </header>
 
 <nav>
-  <button class="active" onclick="showPage('tournaments')">🏅 Tournaments</button>
-  <button id="nav-setup" onclick="showPage('setup')">⚙️ Setup</button>
-  <button onclick="showPage('matches')">🎯 Matches</button>
-  <button onclick="showPage('standings')">📊 Standings</button>
-  <button onclick="showPage('playoff')">🥇 Playoffs</button>
-  <button onclick="showPage('photos')">📸 Photos</button>
+  <button class="active" data-page="tournaments" onclick="showPage('tournaments')">🏅 Tournaments</button>
+  <button id="nav-setup" data-page="setup" onclick="showPage('setup')">⚙️ Setup</button>
+  <button data-page="matches" onclick="showPage('matches')">🎯 Matches</button>
+  <button data-page="standings" onclick="showPage('standings')">📊 Standings</button>
+  <button data-page="playoff" onclick="showPage('playoff')">🥇 Playoffs</button>
+  <button data-page="photos" onclick="showPage('photos')">📸 Photos</button>
 </nav>
 
 <main>
@@ -411,7 +408,7 @@
     <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
     <table class="standings-table">
       <thead>
-        <tr><th>#</th><th>Team</th><th>Group</th><th>P</th><th>W</th><th>L</th><th>PF</th><th>PA</th><th>Diff</th><th>Pts</th></tr>
+        <tr><th>#</th><th>Team</th><th>Group</th><th>P</th><th>W</th><th>D</th><th>L</th><th>PF</th><th>PA</th><th>Diff</th><th>Pts</th></tr>
       </thead>
       <tbody id="standings-body"></tbody>
     </table>
@@ -443,14 +440,16 @@
           </select>
         </div>
       </div>
+      <!-- Hidden file input OUTSIDE drop zone to avoid click loop -->
+      <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none" onchange="uploadPhotos(event)"/>
+
       <div id="photo-upload-section" style="display:none">
-        <div id="photo-drop-zone" onclick="if(!isAdmin){alert('🔒 Admin access required to upload photos.');return;}document.getElementById('photo-file-input').click()"
+        <div id="photo-drop-zone" onclick="triggerPhotoUpload()"
           style="border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:16px;">
           <div style="font-size:2.5rem;margin-bottom:8px">📷</div>
           <div style="font-weight:700;margin-bottom:4px">Click to upload photos</div>
           <div style="font-size:.8rem;color:var(--muted)">JPG, PNG, WEBP — up to 20MB each. Multiple files supported.</div>
           <div style="font-size:.75rem;color:var(--muted);margin-top:4px">☁️ Stored on Cloudinary — 25GB free</div>
-          <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none" onchange="uploadPhotos(event)"/>
         </div>
         <div id="upload-progress" style="display:none;margin-bottom:16px">
           <div style="font-size:.85rem;color:var(--muted);margin-bottom:6px" id="upload-status">Uploading…</div>
@@ -506,6 +505,7 @@ window.newTournament         = newTournament;
 window.loadTournament        = loadTournament;
 window.deleteTournament      = deleteTournament;
 window.uploadPhotos          = uploadPhotos;
+window.triggerPhotoUpload    = triggerPhotoUpload;
 window.onPhotoTournamentChange = onPhotoTournamentChange;
 window.deletePhoto           = deletePhoto;
 window.openLightbox          = openLightbox;
@@ -514,6 +514,7 @@ window.pinClear              = pinClear;
 window.pinBackspace          = pinBackspace;
 window.continueAsViewer      = continueAsViewer;
 window.logoutAdmin           = logoutAdmin;
+window.showPinOverlay        = showPinOverlay;
 
 // ── SYNC STATUS ────────────────────────────────────────────
 function setSyncStatus(state, msg) {
@@ -547,6 +548,10 @@ function startRealtimeSync() {
       renderStandings();
       renderPlayoff();
       updateHeaderInfo();
+    }
+    // Refresh photos tab if active
+    if (document.getElementById('page-photos').classList.contains('active')) {
+      renderPhotosPage();
     }
     setSyncStatus('ok','🔥 Live sync ✓');
     applyRoleUI();
@@ -584,7 +589,7 @@ function renderTournamentList() {
     const isActive = tid === currentTid;
     const done    = total > 0 && played === total;
     const grpCount = (t.groups||[]).length;
-    const teamCount = (t.groups||[]).flat().length;
+    const teamCount = (t.groups||[]).reduce((a,g)=>a+(g.teams||[]).length,0);
     return `
       <div class="tournament-card ${isActive?'active-t':''}" onclick="loadTournament('${tid}')">
         <div>
@@ -592,7 +597,7 @@ function renderTournamentList() {
           <div class="t-meta">${teamCount} teams · ${grpCount} groups · ${played}/${total} matches played · ${new Date(t.createdAt||0).toLocaleDateString()}</div>
         </div>
         <div class="flex gap" style="align-items:center">
-          ${(t.photos&&t.photos.length)?`<img src="${t.photos[t.photos.length-1].url}" class="tournament-photo-thumb" alt="photo"/>`:''}
+          ${(t.photos&&t.photos.length)?`<img src="${t.photos[t.photos.length-1].thumb||t.photos[t.photos.length-1].url}" class="tournament-photo-thumb" alt="photo"/>`:''}
           <span class="t-badge ${done?'done':'active'}">${done?'✅ Completed':'🟢 Active'}</span>
           ${isActive ? '<span style="font-size:.7rem;color:var(--accent2)">▶ Current</span>' : ''}
           <button class="btn btn-sm btn-danger admin-only" onclick="event.stopPropagation();deleteTournament('${tid}')">🗑</button>
@@ -620,7 +625,9 @@ function loadTournament(tid) {
   renderPlayoff();
   updateHeaderInfo();
   renderTournamentList();
-  showPage('matches');
+  // Go to setup if no matches yet, otherwise matches page
+  const hasMatches = (allTournaments[tid].matches||[]).length > 0;
+  showPage(hasMatches ? 'matches' : (isAdmin ? 'setup' : 'matches'));
 }
 
 function newTournament() {
@@ -660,6 +667,7 @@ function calcSizes(total, n) {
 
 // ── SETUP ──────────────────────────────────────────────────
 function applyConfig() {
+  if (!isAdmin) { alert('🔒 Admin access required.'); return; }
   const t = parseInt(document.getElementById('cfg-teams').value);
   const g = parseInt(document.getElementById('cfg-groups').value);
   if (!t||!g||g>t||t<2||g<2) { alert('Enter valid numbers. Groups must be ≥ 2 and ≤ teams.'); return; }
@@ -733,9 +741,17 @@ function saveTeams() {
   } else {
     allTournaments[currentTid].name = tname;
   }
+  const existingMatches = allTournaments[currentTid].matches || [];
+  const hadScores = existingMatches.some(m => m.s1 !== null);
+  if (hadScores) {
+    if (!confirm('⚠️ Regenerating matches will clear all existing scores and playoff results. Continue?')) return;
+  }
   generateMatches();
   allTournaments[currentTid].playoff = {};
-  pushTournament(currentTid, allTournaments[currentTid]);
+  // Never push _draft — only push real IDs
+  if (currentTid && currentTid !== '_draft') {
+    pushTournament(currentTid, allTournaments[currentTid]);
+  }
   buildGroupFilter();
   renderMatches();
   updateHeaderInfo();
@@ -854,7 +870,7 @@ function clearScore(id) {
 // ── STANDINGS ──────────────────────────────────────────────
 function computeStandings() {
   const grps=groups(), ms=matches();
-  const stats=grps.flatMap((grp,gi)=>(grp.teams||[]).map((name,ti)=>({name,gi,ti,P:0,W:0,L:0,PF:0,PA:0,pts:0})));
+  const stats=grps.flatMap((grp,gi)=>(grp.teams||[]).map((name,ti)=>({name,gi,ti,P:0,W:0,D:0,L:0,PF:0,PA:0,pts:0})));
   const offsets=grps.map((_,gi)=>grps.slice(0,gi).reduce((a,g)=>a+(g.teams||[]).length,0));
   const key=(gi,ti)=>offsets[gi]+ti;
   ms.forEach(m=>{
@@ -865,7 +881,7 @@ function computeStandings() {
     stats[k2].PF+=m.s2; stats[k2].PA+=m.s1;
     if(m.s1>m.s2)      {stats[k1].W++;stats[k1].pts+=CONFIG.points.win; stats[k2].L++;stats[k2].pts+=CONFIG.points.loss;}
     else if(m.s2>m.s1) {stats[k2].W++;stats[k2].pts+=CONFIG.points.win; stats[k1].L++;stats[k1].pts+=CONFIG.points.loss;}
-    else               {stats[k1].W++;stats[k1].pts+=CONFIG.points.draw; stats[k2].W++;stats[k2].pts+=CONFIG.points.draw;}
+    else               {stats[k1].D++;stats[k1].pts+=CONFIG.points.draw; stats[k2].D++;stats[k2].pts+=CONFIG.points.draw;}
   });
   stats.forEach(s=>{s.diff=s.PF-s.PA;});
   stats.sort((a,b)=>b.pts-a.pts||b.diff-a.diff||b.PF-a.PF);
@@ -879,7 +895,7 @@ function renderStandings() {
   document.getElementById('standings-label').textContent=`ALL ${totalTeams||''} TEAMS`;
   document.getElementById('standings-title').textContent=`📊 ${tname()} — Standings`;
   if(!grps.length){
-    document.getElementById('standings-body').innerHTML='<tr><td colspan="10" style="color:var(--muted);padding:20px;text-align:center">Set up your tournament first.</td></tr>';
+    document.getElementById('standings-body').innerHTML='<tr><td colspan="11" style="color:var(--muted);padding:20px;text-align:center">Set up your tournament first.</td></tr>';
     document.getElementById('stats-row').innerHTML=''; return;
   }
   const stats=computeStandings();
@@ -912,6 +928,7 @@ function renderStandings() {
         <td><span style="background:${color};padding:2px 8px;border-radius:4px;font-size:.7rem;font-weight:700;color:#000">${grpName}</span></td>
         <td>${s.P}</td>
         <td style="color:var(--accent2)">${s.W}</td>
+        <td style="color:var(--accent)">${s.D||0}</td>
         <td style="color:var(--red)">${s.L}</td>
         <td>${s.PF}</td><td>${s.PA}</td>
         <td class="${diffClass}">${s.diff>0?'+':''}${s.diff}</td>
@@ -939,6 +956,11 @@ function renderPlayoff() {
   const el = document.getElementById('playoff-content');
   if (!currentTid) { el.innerHTML = '<div class="info-box">Select a tournament first.</div>'; return; }
 
+  const standings = computeStandings();
+  if (standings.length < 4) {
+    el.innerHTML = '<div class="info-box" style="border-color:var(--red)">⚠️ You need at least <strong>4 teams</strong> in the standings to run playoffs. Make sure all group stage matches are entered.</div>';
+    return;
+  }
   const pf = playoff();
   const t1 = getPlayoffTeam(1), t2 = getPlayoffTeam(2);
   const t3 = getPlayoffTeam(3), t4 = getPlayoffTeam(4);
@@ -1063,6 +1085,7 @@ function savePlayoffScore(key) {
   const s1 = parseInt(document.getElementById(`pf-s1-${key}`).value);
   const s2 = parseInt(document.getElementById(`pf-s2-${key}`).value);
   if (isNaN(s1)||isNaN(s2)||s1<0||s2<0) { alert('Enter valid scores for both teams.'); return; }
+  if (s1 === s2) { alert('⚠️ Playoff matches cannot end in a draw. One team must win.'); return; }
   if (!allTournaments[currentTid].playoff) allTournaments[currentTid].playoff = {};
   allTournaments[currentTid].playoff[key] = { s1, s2 };
   pushTournament(currentTid, allTournaments[currentTid]);
@@ -1079,10 +1102,11 @@ function clearPlayoffScore(key) {
 
 // ── NAV ────────────────────────────────────────────────────
 function showPage(name) {
+  if (name === 'setup' && !isAdmin) { name = 'tournaments'; }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
-  document.querySelectorAll('nav button').forEach((b,i)=>{
-    b.classList.toggle('active',['tournaments','setup','matches','standings','playoff','photos'][i]===name);
+  document.querySelectorAll('nav button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.page === name);
   });
   if(name==='matches')   renderMatches();
   if(name==='standings') renderStandings();
@@ -1097,6 +1121,15 @@ function updateHeaderInfo() {
 }
 
 // ── PHOTOS (Cloudinary upload) ──────────────────────────────
+
+function triggerPhotoUpload() {
+  // isAdmin is module-scoped so check via window flag
+  if (!window._isAdmin) {
+    alert('🔒 Admin access required to upload photos.');
+    return;
+  }
+  document.getElementById('photo-file-input').click();
+}
 
 async function uploadToCloudinary(file) {
   const { cloudName, uploadPreset } = CONFIG.cloudinary;
@@ -1229,7 +1262,7 @@ function openLightbox(tid, idx) {
   const lb = document.createElement('div');
   lb.className = 'lightbox';
   lb.innerHTML = `
-    <button class="lightbox-close" onclick="this.parentElement.remove()">✕</button>
+    <button class="lightbox-close" onclick="this.parentElement.remove();document.removeEventListener('keydown',lbKeyHandler)">✕</button>
     <button class="lb-nav lb-prev" onclick="event.stopPropagation();show(lbIdx-1)">&#8249;</button>
     <div style="display:flex;flex-direction:column;align-items:center;gap:10px;max-width:90vw">
       <img src="${p.url}" alt="${p.name||'Photo'}" style="max-width:100%;max-height:80vh;border-radius:10px;object-fit:contain"/>
@@ -1241,11 +1274,12 @@ function openLightbox(tid, idx) {
     </div>
     <button class="lb-nav lb-next" onclick="event.stopPropagation();show(lbIdx+1)">&#8250;</button>`;
   lb.onclick = e => { if (e.target === lb) lb.remove(); };
-  document.addEventListener('keydown', function handler(e) {
+  const lbKeyHandler = (e) => {
     if (e.key === 'ArrowLeft')  show(lbIdx-1);
     if (e.key === 'ArrowRight') show(lbIdx+1);
-    if (e.key === 'Escape') { lb.remove(); document.removeEventListener('keydown', handler); }
-  });
+    if (e.key === 'Escape') { lb.remove(); document.removeEventListener('keydown', lbKeyHandler); }
+  };
+  document.addEventListener('keydown', lbKeyHandler);
   document.body.appendChild(lb);
 }
 
@@ -1257,7 +1291,7 @@ function pinPress(digit) {
   if (pinEntry.length >= String(CONFIG.adminPin).length) return;
   pinEntry += digit;
   updatePinDots();
-  if (pinEntry.length === 4) {
+  if (pinEntry.length === String(CONFIG.adminPin).length) {
     setTimeout(checkPin, 150);
   }
 }
@@ -1276,8 +1310,14 @@ function pinClear() {
 
 function updatePinDots() {
   const pinLen = String(CONFIG.adminPin).length;
+  const row = document.getElementById('pin-dots-row');
+  // Generate dots if not already present
+  if (row.children.length !== pinLen) {
+    row.innerHTML = Array.from({length: pinLen}, (_,i) => `<div class="pin-dot" id="pd${i}"></div>`).join('');
+  }
   for (let i = 0; i < pinLen; i++) {
-    document.getElementById('pd' + i).classList.toggle('filled', i < pinEntry.length);
+    const dot = document.getElementById('pd' + i);
+    if (dot) dot.classList.toggle('filled', i < pinEntry.length);
   }
 }
 
@@ -1297,36 +1337,43 @@ function checkPin() {
 
 function loginAsAdmin() {
   isAdmin = true;
+  window._isAdmin = true;
   sessionStorage.setItem('isAdmin', '1');
   document.getElementById('pin-overlay').classList.add('hidden');
-  document.getElementById('role-badge').textContent = '🔑 Admin';
-  document.getElementById('role-badge').className = 'admin-badge';
   document.getElementById('admin-logout-btn').style.display = 'inline-block';
+  document.getElementById('viewer-login-btn').style.display = 'none';
   applyRoleUI();
   showPage('tournaments');
 }
 
 function continueAsViewer() {
   isAdmin = false;
+  window._isAdmin = false;
   sessionStorage.removeItem('isAdmin');
   document.getElementById('pin-overlay').classList.add('hidden');
-  document.getElementById('role-badge').textContent = '👁 Viewer';
-  document.getElementById('role-badge').className = 'viewer-badge';
   document.getElementById('admin-logout-btn').style.display = 'none';
+  document.getElementById('viewer-login-btn').style.display = 'inline-block';
   applyRoleUI();
   showPage('tournaments');
 }
 
+function showPinOverlay() {
+  pinEntry = '';
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-overlay').classList.remove('hidden');
+}
+
 function logoutAdmin() {
   isAdmin = false;
+  window._isAdmin = false;
   sessionStorage.removeItem('isAdmin');
   pinEntry = '';
   updatePinDots();
   document.getElementById('pin-error').textContent = '';
   document.getElementById('pin-overlay').classList.remove('hidden');
-  document.getElementById('role-badge').textContent = '👁 Viewer';
-  document.getElementById('role-badge').className = 'viewer-badge';
   document.getElementById('admin-logout-btn').style.display = 'none';
+  document.getElementById('viewer-login-btn').style.display = 'inline-block';
   applyRoleUI();
 }
 
@@ -1357,15 +1404,13 @@ document.addEventListener('keydown', e => {
 
 // ── START ──────────────────────────────────────────────────
 updateHint();
-buildGroupFilter();
-renderMatches();
-renderStandings();
-// Restore admin session if page was refreshed
+// Start Firebase sync FIRST so data is ready
+startRealtimeSync();
+// Restore admin session if page was refreshed (after sync started)
 if (sessionStorage.getItem('isAdmin') === '1') {
   loginAsAdmin();
-} 
-// PIN overlay shown by default — user must either login or continue as viewer
-startRealtimeSync();
+}
+// Otherwise PIN overlay stays visible — user must login or continue as viewer
 </script>
 </body>
 </html>
