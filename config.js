@@ -23,6 +23,19 @@ const CONFIG = {
     loss: 0,   // Points for a loss
   },
 
+  // ── ADMIN SECURITY ───────────────────────────────────────
+  // Change this PIN to whatever you want — keep it secret!
+  // Viewers can see everything but cannot make any changes.
+  adminPin: "1234",   // ← CHANGE THIS to your own PIN
+
+  // ── CLOUDINARY (photo storage) ────────────────────────────
+  // Get these from cloudinary.com → Dashboard (cloud name)
+  // and Settings → Upload → Upload Presets (preset name)
+  cloudinary: {
+    cloudName:    "dhxvobnxr",   // Your Cloudinary cloud name
+    uploadPreset: "ml_default",  // Your unsigned upload preset
+  },
+
 };
 
 export default CONFIG;
