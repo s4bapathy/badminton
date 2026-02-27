@@ -117,7 +117,7 @@
   .bracket-round{display:flex;flex-direction:column;min-width:200px;}
   .bracket-round-title{font-family:'Bebas Neue';font-size:.85rem;letter-spacing:2px;color:var(--muted);text-align:center;padding:8px;border-bottom:1px solid var(--border);margin-bottom:12px;}
   .bracket-slots{display:flex;flex-direction:column;justify-content:space-around;flex:1;gap:10px;padding:0 10px;}
-  .bracket-match{background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden;position:relative;}
+  .bracket-match{background:var(--surface2);border:1px solid var(--border);border-radius:10px;position:relative;margin-top:18px;}
   .bracket-match.final{border-color:var(--accent);}
   .bracket-match.third{border-color:var(--accent2);}
   .bracket-team{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;gap:8px;font-size:.84rem;font-weight:500;}
@@ -125,7 +125,7 @@
   .bracket-team.winner{background:rgba(245,158,11,.12);color:var(--accent);font-weight:700;}
   .bracket-score{font-family:'Bebas Neue';font-size:1rem;color:var(--accent);min-width:24px;text-align:right;}
   .bracket-seed{font-size:.65rem;color:var(--muted);margin-right:4px;}
-  .bracket-label{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-size:.6rem;font-weight:700;padding:1px 7px;border-radius:10px;white-space:nowrap;}
+  .bracket-label{display:block;text-align:center;background:var(--accent);color:#000;font-size:.68rem;font-weight:700;padding:3px 10px;border-radius:6px 6px 0 0;white-space:nowrap;}
   .bracket-label.green{background:var(--accent2);}
   .bracket-connector{display:flex;flex-direction:column;justify-content:space-around;width:30px;}
   .bracket-score-inputs{display:flex;gap:4px;align-items:center;padding:6px 10px;border-top:1px solid var(--border);background:var(--surface);}
@@ -397,7 +397,7 @@ function loadTournament(tid) {
   if (!t) return;
   // Populate setup fields
   document.getElementById('cfg-tname').value  = t.name || '';
-  document.getElementById('cfg-teams').value  = (t.groups||[]).flat().length || 16;
+  document.getElementById('cfg-teams').value  = (t.groups||[]).reduce((a,g)=>a+(g.teams||[]).length,0) || 16;
   document.getElementById('cfg-groups').value = (t.groups||[]).length || 2;
   if ((t.groups||[]).length) {
     renderSetupGroups();
@@ -702,96 +702,95 @@ function renderStandings() {
 }
 
 // ── PLAYOFFS ───────────────────────────────────────────────
-// Structure:
-//   SF1: Rank1 vs Rank2 → winner → FINAL, loser → 3rd place match
-//   SF2: Rank3 vs Rank4 → winner → 3rd place match, loser → 4th
-//   FINAL: SF1 winner vs SF2 winner
-//   THIRD: SF1 loser vs SF2 winner (wait, per user: "3&4 play, winner plays loser of 1v2 for bronze")
-// Correct per user:
-//   Match1 (FINAL qualifier): Rank1 vs Rank2 → winner=CHAMPION, loser→ Bronze match
-//   Match2 (Semi):            Rank3 vs Rank4 → winner→ Bronze match
-//   Bronze: loser of Match1 vs winner of Match2
+// CORRECT FLOW (confirmed by user):
+//   SF1: #1 vs #2  → SF1 winner → FINAL,   SF1 loser → BRONZE
+//   SF2: #3 vs #4  → SF2 winner → BRONZE,  SF2 loser → ELIMINATED
+//   BRONZE: SF1 loser vs SF2 winner → Bronze winner → FINAL
+//   FINAL:  SF1 winner vs Bronze winner → 🥇 Champion & 🥈 Runner-up
+//   Bronze loser = 3rd place, SF2 loser = eliminated (4th)
 
 function getPlayoffTeam(rank) {
-  const stats=computeStandings();
-  const s=stats[rank-1];
-  if(!s) return {name:'TBD',seed:rank};
-  return {name:s.name, seed:rank, gi:s.gi};
+  const stats = computeStandings();
+  const s = stats[rank - 1];
+  if (!s) return { name: '—', seed: rank };
+  return { name: s.name, seed: rank };
 }
 
 function renderPlayoff() {
-  if(!currentTid){document.getElementById('playoff-content').innerHTML='<div class="info-box">Select a tournament first.</div>';return;}
-  const ms=matches();
-  const totalPlayed=ms.filter(m=>m.s1!==null).length;
-  const pf=playoff();
+  const el = document.getElementById('playoff-content');
+  if (!currentTid) { el.innerHTML = '<div class="info-box">Select a tournament first.</div>'; return; }
 
-  const t1=getPlayoffTeam(1), t2=getPlayoffTeam(2);
-  const t3=getPlayoffTeam(3), t4=getPlayoffTeam(4);
+  const pf = playoff();
+  const t1 = getPlayoffTeam(1), t2 = getPlayoffTeam(2);
+  const t3 = getPlayoffTeam(3), t4 = getPlayoffTeam(4);
 
-  // Match A: Rank1 vs Rank2 (direct to final / loser plays bronze)
-  const mA  = pf.matchA || {s1:null,s2:null};
-  const mA_done = mA.s1!==null;
-  const mA_w = mA_done ? (mA.s1>mA.s2?t1:t2) : null;
-  const mA_l = mA_done ? (mA.s1>mA.s2?t2:t1) : null;
+  // SF1: #1 vs #2
+  const sf1 = pf.sf1 || { s1: null, s2: null };
+  const sf1w = sf1.s1 !== null ? (sf1.s1 > sf1.s2 ? t1 : t2) : null;  // → FINAL
+  const sf1l = sf1.s1 !== null ? (sf1.s1 > sf1.s2 ? t2 : t1) : null;  // → BRONZE
 
-  // Match B: Rank3 vs Rank4 (winner plays bronze)
-  const mB  = pf.matchB || {s1:null,s2:null};
-  const mB_done = mB.s1!==null;
-  const mB_w = mB_done ? (mB.s1>mB.s2?t3:t4) : null;
+  // SF2: #3 vs #4
+  const sf2 = pf.sf2 || { s1: null, s2: null };
+  const sf2w = sf2.s1 !== null ? (sf2.s1 > sf2.s2 ? t3 : t4) : null;  // → BRONZE
+  const sf2l = sf2.s1 !== null ? (sf2.s1 > sf2.s2 ? t4 : t3) : null;  // → ELIMINATED
 
-  // Bronze: loser of A vs winner of B
-  const mC  = pf.matchC || {s1:null,s2:null};
-  const mC_done = mC.s1!==null;
-  const bronze1 = mA_l || {name:'Loser of Match A', seed:'?'};
-  const bronze2 = mB_w || {name:'Winner of Match B', seed:'?'};
-  const mC_w = mC_done ? (mC.s1>mC.s2?bronze1:bronze2) : null;
+  // BRONZE: SF1 loser vs SF2 winner → winner goes to FINAL
+  const bronA = sf1l || { name: 'Loser of SF1', seed: '?' };
+  const bronB = sf2w || { name: 'Winner of SF2', seed: '?' };
+  const bron  = pf.bronze || { s1: null, s2: null };
+  const bronw = bron.s1 !== null ? (bron.s1 > bron.s2 ? bronA : bronB) : null;  // → FINAL
+  const bronl = bron.s1 !== null ? (bron.s1 > bron.s2 ? bronB : bronA) : null;  // → 3rd place
 
-  // Final: winner of A vs winner of B (per user: 1v2 winner goes straight to final)
-  // Wait — re-reading user: "1 vs 2 go straight to final AND 3 vs 4 play, winner plays loser of 1v2"
-  // So: FINAL = Rank1 vs Rank2 winner IS the final itself. No separate final.
-  // Bronze = loser of (1v2) vs winner of (3v4)
-  // Champion = winner of (1v2), Runner-up = winner of Bronze, 3rd = loser of Bronze
+  // FINAL: SF1 winner vs Bronze winner
+  const finA = sf1w  || { name: 'Winner of SF1',    seed: '?' };
+  const finB = bronw || { name: 'Winner of Bronze',  seed: '?' };
+  const fin  = pf.final || { s1: null, s2: null };
+  const finw = fin.s1 !== null ? (fin.s1 > fin.s2 ? finA : finB) : null;  // 🥇 Champion
+  const finl = fin.s1 !== null ? (fin.s1 > fin.s2 ? finB : finA) : null;  // 🥈 Runner-up
 
-  document.getElementById('playoff-content').innerHTML = `
-    <div style="margin-bottom:16px" class="info-box">
-      <strong>🥇 Final:</strong> Rank 1 vs Rank 2 — winner is <strong>Champion</strong>, loser goes to Bronze match.<br>
-      <strong>🥉 Bronze match:</strong> Loser of Final vs Winner of (Rank 3 vs Rank 4).<br>
-      Winner of Bronze = <strong>3rd place</strong>. Loser = <strong>4th place</strong>.
+  el.innerHTML = `
+    <div class="info-box" style="margin-bottom:16px">
+      <strong>SF1:</strong> #1 vs #2 — winner &rarr; Final, loser &rarr; Bronze.<br>
+      <strong>SF2:</strong> #3 vs #4 — winner &rarr; Bronze, loser &rarr; ❌ Eliminated.<br>
+      <strong>Bronze:</strong> Loser SF1 vs Winner SF2 — winner &rarr; Final (3rd place if lose Final).<br>
+      <strong>Final:</strong> Winner SF1 vs Winner Bronze &rarr; 🥇 Champion &amp; 🥈 Runner-up.
     </div>
 
     <div class="bracket-wrap">
 
-      <!-- SEMI: Rank3 vs Rank4 -->
+      <!-- SEMI-FINALS -->
       <div class="bracket-round">
-        <div class="bracket-round-title">SEMI-FINAL</div>
+        <div class="bracket-round-title">⚡ SEMI-FINALS</div>
         <div class="bracket-slots">
-          ${bracketMatchHTML('matchB', t3, t4, mB, '3rd vs 4th', false)}
-        </div>
-      </div>
-
-      <!-- FINAL: Rank1 vs Rank2 -->
-      <div class="bracket-round">
-        <div class="bracket-round-title">⭐ FINAL</div>
-        <div class="bracket-slots">
-          ${bracketMatchHTML('matchA', t1, t2, mA, '🏆 FINAL', true)}
+          ${bracketMatchHTML('sf1', t1, t2, sf1, 'SF1 — #1 vs #2', false)}
+          ${bracketMatchHTML('sf2', t3, t4, sf2, 'SF2 — #3 vs #4', false)}
         </div>
       </div>
 
       <!-- BRONZE -->
       <div class="bracket-round">
         <div class="bracket-round-title">🥉 BRONZE</div>
-        <div class="bracket-slots">
-          ${bracketMatchHTML('matchC', bronze1, bronze2, mC, '3rd Place', false, true)}
+        <div class="bracket-slots" style="padding-top:30px">
+          ${bracketMatchHTML('bronze', bronA, bronB, bron, 'Loser SF1 vs Winner SF2', false, true)}
+        </div>
+      </div>
+
+      <!-- FINAL -->
+      <div class="bracket-round">
+        <div class="bracket-round-title">🏆 FINAL</div>
+        <div class="bracket-slots" style="padding-top:30px">
+          ${bracketMatchHTML('final', finA, finB, fin, 'Winner SF1 vs Winner Bronze', true)}
         </div>
       </div>
 
       <!-- RESULTS -->
       <div class="bracket-round">
         <div class="bracket-round-title">🏅 RESULTS</div>
-        <div class="bracket-slots" style="gap:14px;padding:0 10px">
-          ${resultBadge('🥇 Champion',   mA_w?.name)}
-          ${resultBadge('🥈 Runner-up',  mA_l?.name)}
-          ${resultBadge('🥉 3rd Place',  mC_w?.name)}
+        <div class="bracket-slots" style="gap:12px;padding:0 8px">
+          ${resultBadge('🥇 Champion',       finw?.name  || '—')}
+          ${resultBadge('🥈 Runner-up',      finl?.name  || '—')}
+          ${resultBadge('🥉 3rd Place',      bronl?.name || '—')}
+          ${resultBadge('❌ Eliminated',     sf2l?.name  || '—')}
         </div>
       </div>
 
@@ -799,34 +798,34 @@ function renderPlayoff() {
 }
 
 function bracketMatchHTML(key, teamA, teamB, match, label, isFinal=false, isBronze=false) {
-  const done = match.s1!==null;
-  const aWon = done && match.s1>match.s2;
-  const bWon = done && match.s2>match.s1;
+  const done = match.s1 !== null;
+  const aWon = done && match.s1 > match.s2;
+  const bWon = done && match.s2 > match.s1;
   const scoreA = done ? match.s1 : '—';
   const scoreB = done ? match.s2 : '—';
   return `
-    <div class="bracket-match ${isFinal?'final':''} ${isBronze?'third':''}">
-      <div style="position:relative;padding-top:6px">
-        <span class="bracket-label ${isBronze?'green':''}">${label}</span>
+    <div style="margin-bottom:10px">
+      <span class="bracket-label ${isBronze?'green':''}" style="${isFinal?'background:var(--accent)':''}">${label}</span>
+      <div class="bracket-match ${isFinal?'final':''} ${isBronze?'third':''}">
+        <div class="bracket-team ${aWon?'winner':''}">
+          <span><span class="bracket-seed">#${teamA.seed||'?'}</span>${teamA.name}</span>
+          <span class="bracket-score">${scoreA}</span>
+        </div>
+        <div class="bracket-team ${bWon?'winner':''}">
+          <span><span class="bracket-seed">#${teamB.seed||'?'}</span>${teamB.name}</span>
+          <span class="bracket-score">${scoreB}</span>
+        </div>
+        ${done
+          ? `<div class="bracket-score-inputs" style="justify-content:flex-end">
+               <button class="edit-btn" onclick="clearPlayoffScore('${key}')">✏️ Edit</button>
+             </div>`
+          : `<div class="bracket-score-inputs">
+               <input type="number" id="pf-s1-${key}" min="0" placeholder="—"/>
+               <span style="color:var(--muted)">:</span>
+               <input type="number" id="pf-s2-${key}" min="0" placeholder="—"/>
+               <button class="save-btn" onclick="savePlayoffScore('${key}')" style="margin-left:4px">Save</button>
+             </div>`}
       </div>
-      <div class="bracket-team ${aWon?'winner':''}">
-        <span><span class="bracket-seed">#${teamA.seed||'?'}</span>${teamA.name}</span>
-        <span class="bracket-score">${scoreA}</span>
-      </div>
-      <div class="bracket-team ${bWon?'winner':''}">
-        <span><span class="bracket-seed">#${teamB.seed||'?'}</span>${teamB.name}</span>
-        <span class="bracket-score">${scoreB}</span>
-      </div>
-      ${done
-        ? `<div class="bracket-score-inputs" style="justify-content:flex-end">
-             <button class="edit-btn" onclick="clearPlayoffScore('${key}')">✏️ Edit</button>
-           </div>`
-        : `<div class="bracket-score-inputs">
-             <input type="number" id="pf-s1-${key}" min="0" placeholder="—"/>
-             <span style="color:var(--muted)">:</span>
-             <input type="number" id="pf-s2-${key}" min="0" placeholder="—"/>
-             <button class="save-btn" onclick="savePlayoffScore('${key}')" style="margin-left:4px">Save</button>
-           </div>`}
     </div>`;
 }
 
@@ -834,23 +833,23 @@ function resultBadge(label, name) {
   return `
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center">
       <div style="font-size:.8rem;color:var(--muted);margin-bottom:4px">${label}</div>
-      <div style="font-family:'Bebas Neue';font-size:1.1rem;letter-spacing:1px;color:var(--accent)">${name||'TBD'}</div>
+      <div style="font-family:'Bebas Neue';font-size:1.1rem;letter-spacing:1px;color:var(--accent)">${name||'—'}</div>
     </div>`;
 }
 
 function savePlayoffScore(key) {
-  const s1=parseInt(document.getElementById(`pf-s1-${key}`).value);
-  const s2=parseInt(document.getElementById(`pf-s2-${key}`).value);
-  if(isNaN(s1)||isNaN(s2)||s1<0||s2<0){alert('Enter valid scores.');return;}
-  if(!allTournaments[currentTid].playoff) allTournaments[currentTid].playoff={};
-  allTournaments[currentTid].playoff[key]={s1,s2};
+  const s1 = parseInt(document.getElementById(`pf-s1-${key}`).value);
+  const s2 = parseInt(document.getElementById(`pf-s2-${key}`).value);
+  if (isNaN(s1)||isNaN(s2)||s1<0||s2<0) { alert('Enter valid scores for both teams.'); return; }
+  if (!allTournaments[currentTid].playoff) allTournaments[currentTid].playoff = {};
+  allTournaments[currentTid].playoff[key] = { s1, s2 };
   pushTournament(currentTid, allTournaments[currentTid]);
   renderPlayoff();
 }
 
 function clearPlayoffScore(key) {
-  if(!allTournaments[currentTid].playoff) return;
-  allTournaments[currentTid].playoff[key]={s1:null,s2:null};
+  if (!allTournaments[currentTid].playoff) return;
+  allTournaments[currentTid].playoff[key] = { s1: null, s2: null };
   pushTournament(currentTid, allTournaments[currentTid]);
   renderPlayoff();
 }
