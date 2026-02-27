@@ -290,7 +290,7 @@
   <div class="pin-box">
     <h2>🔐 Admin Login</h2>
     <p>Enter the admin PIN to make changes.<br>Or continue as a viewer to watch the tournament.</p>
-    <div class="pin-dots">
+    <div class="pin-dots" id="pin-dots-row">
       <div class="pin-dot" id="pd0"></div>
       <div class="pin-dot" id="pd1"></div>
       <div class="pin-dot" id="pd2"></div>
@@ -316,7 +316,7 @@
 </div>
 
 <header>
-  <h1>🏸 Scarborough Warriors Badminton Tournament </h1>
+  <h1>🏸 Scarborough Warriors Badminton Tournament</h1>
   <div class="hdr-right">
     <div style="display:flex;align-items:center;gap:6px">
       <span id="header-info">Badminton Tournament</span>
@@ -509,6 +509,11 @@ window.uploadPhotos          = uploadPhotos;
 window.onPhotoTournamentChange = onPhotoTournamentChange;
 window.deletePhoto           = deletePhoto;
 window.openLightbox          = openLightbox;
+window.pinPress              = pinPress;
+window.pinClear              = pinClear;
+window.pinBackspace          = pinBackspace;
+window.continueAsViewer      = continueAsViewer;
+window.logoutAdmin           = logoutAdmin;
 
 // ── SYNC STATUS ────────────────────────────────────────────
 function setSyncStatus(state, msg) {
@@ -590,10 +595,11 @@ function renderTournamentList() {
           ${(t.photos&&t.photos.length)?`<img src="${t.photos[t.photos.length-1].url}" class="tournament-photo-thumb" alt="photo"/>`:''}
           <span class="t-badge ${done?'done':'active'}">${done?'✅ Completed':'🟢 Active'}</span>
           ${isActive ? '<span style="font-size:.7rem;color:var(--accent2)">▶ Current</span>' : ''}
-          <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deleteTournament('${tid}')">🗑</button>
+          <button class="btn btn-sm btn-danger admin-only" onclick="event.stopPropagation();deleteTournament('${tid}')">🗑</button>
         </div>
       </div>`;
   }).join('');
+  if (typeof isAdmin !== 'undefined') applyRoleUI();
 }
 
 function loadTournament(tid) {
@@ -618,6 +624,7 @@ function loadTournament(tid) {
 }
 
 function newTournament() {
+  if (!isAdmin) { alert('🔒 Admin access required.'); return; }
   currentTid = null;
   document.getElementById('cfg-tname').value  = '';
   document.getElementById('cfg-teams').value  = 16;
@@ -704,6 +711,7 @@ function renderSetupGroups() {
 }
 
 function saveTeams() {
+  if (!isAdmin) { alert('🔒 Admin access required.'); return; }
   const tname = document.getElementById('cfg-tname').value.trim() || 'Tournament';
   // Read group names
   document.querySelectorAll('.grp-name-input').forEach(inp => {
@@ -747,6 +755,7 @@ function generateMatches() {
 }
 
 function resetAll() {
+  if (!isAdmin) { alert('🔒 Admin access required.'); return; }
   if (!confirm('Reset this tournament? All scores will be lost.')) return;
   if (!currentTid) return;
   allTournaments[currentTid].matches = [];
@@ -817,6 +826,8 @@ function renderMatches() {
           : `<button class="save-btn" onclick="saveScore(${m.id})">Save</button>`}
       </div>`;
   }).join('');
+  // Re-apply role restrictions to newly rendered buttons
+  if (typeof isAdmin !== 'undefined') applyRoleUI();
 }
 
 function saveScore(id) {
@@ -1003,6 +1014,8 @@ function renderPlayoff() {
       </div>
 
     </div>`;
+  // Re-apply role restrictions to newly rendered playoff buttons
+  if (typeof isAdmin !== 'undefined') applyRoleUI();
 }
 
 function bracketMatchHTML(key, teamA, teamB, match, label, isFinal=false, isBronze=false) {
@@ -1203,21 +1216,21 @@ function openLightbox(tid, idx) {
   const photos = (allTournaments[tid] || {}).photos || [];
   const p = photos[idx]; if (!p) return;
   const total = photos.length;
-  let cur = idx;
+  let lbIdx = idx;
 
   function show(i) {
-    cur = (i + total) % total;
-    const ph = photos[cur];
+    lbIdx = (i + total) % total;
+    const ph = photos[lbIdx];
     lb.querySelector('img').src = ph.url;
     lb.querySelector('.lb-name').textContent = ph.name || '';
-    lb.querySelector('.lb-counter').textContent = `${cur+1} / ${total}`;
+    lb.querySelector('.lb-counter').textContent = `${lbIdx+1} / ${total}`;
   }
 
   const lb = document.createElement('div');
   lb.className = 'lightbox';
   lb.innerHTML = `
     <button class="lightbox-close" onclick="this.parentElement.remove()">✕</button>
-    <button class="lb-nav lb-prev" onclick="event.stopPropagation();show(cur-1)">&#8249;</button>
+    <button class="lb-nav lb-prev" onclick="event.stopPropagation();show(lbIdx-1)">&#8249;</button>
     <div style="display:flex;flex-direction:column;align-items:center;gap:10px;max-width:90vw">
       <img src="${p.url}" alt="${p.name||'Photo'}" style="max-width:100%;max-height:80vh;border-radius:10px;object-fit:contain"/>
       <div style="display:flex;align-items:center;gap:16px">
@@ -1226,11 +1239,11 @@ function openLightbox(tid, idx) {
         <a href="${p.url}" download="${p.name||'photo'}" style="color:var(--accent);font-size:.8rem;text-decoration:none" onclick="event.stopPropagation()">⬇ Download</a>
       </div>
     </div>
-    <button class="lb-nav lb-next" onclick="event.stopPropagation();show(cur+1)">&#8250;</button>`;
+    <button class="lb-nav lb-next" onclick="event.stopPropagation();show(lbIdx+1)">&#8250;</button>`;
   lb.onclick = e => { if (e.target === lb) lb.remove(); };
   document.addEventListener('keydown', function handler(e) {
-    if (e.key === 'ArrowLeft')  show(cur-1);
-    if (e.key === 'ArrowRight') show(cur+1);
+    if (e.key === 'ArrowLeft')  show(lbIdx-1);
+    if (e.key === 'ArrowRight') show(lbIdx+1);
     if (e.key === 'Escape') { lb.remove(); document.removeEventListener('keydown', handler); }
   });
   document.body.appendChild(lb);
@@ -1241,7 +1254,7 @@ let isAdmin = false;
 let pinEntry = '';
 
 function pinPress(digit) {
-  if (pinEntry.length >= 4) return;
+  if (pinEntry.length >= String(CONFIG.adminPin).length) return;
   pinEntry += digit;
   updatePinDots();
   if (pinEntry.length === 4) {
@@ -1262,7 +1275,8 @@ function pinClear() {
 }
 
 function updatePinDots() {
-  for (let i = 0; i < 4; i++) {
+  const pinLen = String(CONFIG.adminPin).length;
+  for (let i = 0; i < pinLen; i++) {
     document.getElementById('pd' + i).classList.toggle('filled', i < pinEntry.length);
   }
 }
